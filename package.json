@@ -13,6 +13,7 @@
     "amis": "^1.10.2",
     "amis-editor": "^4.1.0-beta.24",
     "axios": "^0.27.2",
+    "nodemon": "^2.0.18",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-scripts": "5.0.1",
@@ -23,7 +24,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "server": "nodemon ./server/app.js"
   },
   "eslintConfig": {
     "extends": [

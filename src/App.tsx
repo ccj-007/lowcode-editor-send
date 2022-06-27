@@ -1,30 +1,72 @@
 import React from 'react';
 import { Editor } from 'amis-editor';
+import './App.css'
+import axios from 'axios'
 
-// value: any 值，amis 的 json 配置。
-// onChange: (value: any) => void。 当编辑器修改的时候会触发。
-// preview?: boolean 是否为预览状态。
-// autoFocus?: boolean 是否自动聚焦第一个可编辑的组件。
-// plugins 插件类集合
 class App extends React.Component {
   state = {
-    jsonData: {}
+    json: {
+      type: "page"  //确保是页面层级
+    },
+    routeName: 'default',
+    pathName: "client-admin"
   }
   constructor(props: any) {
     super(props)
   }
-  handleChange(e: any) {
+  componentDidMount() {
+    axios.get('http://localhost:3001/api/getJSON').then((res: any) => {
+      if (!res || !res.data) return
+      let obj = res.data
+      this.setState({
+        json: obj
+      }, () => {
+        console.log(this.state.json);
+      })
+    })
+  }
+  sendJSON = () => {
+    if (this.state.json.type !== 'page') {
+      alert('请确保在页面层级更新json')
+      return
+    }
+    axios.post('http://localhost:3001/api/setJSON', {
+      json: this.state.json,
+      routeName: this.state.routeName,
+      pathName: this.state.pathName
+    },
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    ).then((res) => {
+      if (res && res.data && res.data.json) {
+        this.setState({
+          json: res.data.json
+        })
+        console.log("josn获取是否成功", res);
+      }
+    })
+  }
+  handleChange = (e: any) => {
     if (e) {
-      console.log("handleChange", JSON.stringify(e));
+      this.setState({
+        json: e
+      }, () => {
+        console.log("change", this.state.json);
+      })
     }
   }
 
   render() {
     return (
       <>
-        <button>发送JSON文件</button>
+        <button className='send-btn' onClick={this.sendJSON}>点击配置生效</button>
+        <span>项目名：</span><input type="text" />
+        <span>路由名：</span><input type="text" />
         <Editor
-          value={JSON.parse(JSON.stringify({}))}
+          value={JSON.parse(JSON.stringify(this.state.json))}
           onChange={this.handleChange}
         />
       </>

@@ -1,0 +1,24 @@
+{
+  "json": {
+    "type": "page",
+    "body": [
+      {
+        "type": "qrcode",
+        "value": "https://amis.baidu.com",
+        "id": "u:bd049b3314f7"
+      },
+      {
+        "type": "qrcode",
+        "value": "https://amis.baidu.com",
+        "id": "u:d114159e52be"
+      },
+      {
+        "type": "qrcode",
+        "value": "https://amis.baidu.com",
+        "id": "u:3359692fb090"
+      }
+    ]
+  },
+  "routeName": "default",
+  "pathName": "client-admin"
+}

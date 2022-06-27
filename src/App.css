@@ -1,0 +1,13 @@
+.send-btn {
+  border: none;
+  background: rgb(57, 149, 203);
+  color: #fff;
+  border-radius: 2px;
+  padding: 5px 10px;
+  margin: 10px;
+  cursor: pointer;
+}
+
+.send-btn:hover {
+  opacity: .8;
+}
