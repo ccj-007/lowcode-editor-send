@@ -1,7 +1,7 @@
-var http = require("http");
+const http = require("http");
 const fs = require('fs');
-var path = require('path');
-var file = path.join(__dirname, 'client-admin.json')
+const path = require('path');
+const file = path.join(__dirname, 'client-admin.json')
 
 http.createServer(function (req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');

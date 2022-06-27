@@ -1,46 +1,162 @@
-# Getting Started with Create React App
+# 关于
+基于amis-editor，通过封装json数据上报、配置、自定义组件等，实现低代码管理后台实时更新，无需手动写json配置。
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
+# 如何使用
 
-In the project directory, you can run:
+```
+  npm i           //安装依赖
+  npm run start   //通过devserve启动前端页面
+  npm run server  //启动node服务
+  
+```
 
-### `npm start`
+# 核心
+```js
+//src/App.tsx  
+import React from 'react';
+import { Editor } from 'amis-editor';
+import './App.css'
+import axios from 'axios'
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+class App extends React.Component {
+  state = {
+    json: {
+      type: "page"  //确保是页面层级
+    },
+    routeName: 'default',
+    pathName: "client-admin"
+  }
+  constructor(props: any) {
+    super(props)
+  }
+  componentDidMount() {
+    axios.get('http://localhost:3001/api/getJSON').then((res: any) => {
+      if (!res || !res.data) return
+      let obj = res.data
+      this.setState({
+        json: obj
+      }, () => {
+        console.log(this.state.json);
+      })
+    })
+  }
+  sendJSON = () => {
+    if (this.state.json.type !== 'page') {
+      alert('请确保在页面层级更新json')
+      return
+    }
+    axios.post('http://localhost:3001/api/setJSON', {
+      json: this.state.json,
+      routeName: this.state.routeName,
+      pathName: this.state.pathName
+    },
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    ).then((res) => {
+      if (res && res.data && res.data.json) {
+        this.setState({
+          json: res.data.json
+        })
+        console.log("josn获取是否成功", res);
+      }
+    })
+  }
+  handleChange = (e: any) => {
+    if (e) {
+      this.setState({
+        json: e
+      }, () => {
+        console.log("change", this.state.json);
+      })
+    }
+  }
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+  render() {
+    return (
+      <>
+        <button className='send-btn' onClick={this.sendJSON}>点击配置生效</button>
+        <span>项目名：</span><input type="text" />
+        <span>路由名：</span><input type="text" />
+        <Editor
+          value={JSON.parse(JSON.stringify(this.state.json))}
+          onChange={this.handleChange}
+        />
+      </>
+    )
+  }
+}
 
-### `npm test`
+export default App;
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```
 
-### `npm run build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+# 后端服务
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```js
 
-### `npm run eject`
+//server/app.js  用于调试服务端
+const http = require("http");
+const fs = require('fs');
+const path = require('path');
+const file = path.join(__dirname, 'client-admin.json')
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+http.createServer(function (req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Content-Type', 'application/json;');
+  res.setHeader("Access-Control-Allow-Methods", "DELETE,PUT,POST,GET,OPTIONS");
+  console.log(req.url);
+  console.log(req.method);
+  if (req.method == 'OPTIONS') {
+    res.writeHead(200, {
+      'Content-Type': 'text/plain',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Headers': 'Content-Type, Content-Length, Authorization, Accept, X-Requested-With , yourHeaderFeild, sessionToken',
+      'Access-Control-Allow-Methods': 'PUT, POST, GET, DELETE, OPTIONS'
+    });
+    res.end('');
+  }
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+  if (req.method === 'POST' && req.url === '/api/setJSON') {
+    let item = '';
+    // 读取每次发送的数据
+    req.on('data', function (chunk) {
+      item += chunk.toString();
+    });
+    // 数据发送完成
+    req.on('end', function () {
+      // json文件需要存入路径
+      fs.writeFileSync(file, item)
+      // items.push(item.item);
+      // // 将数据返回到客户端
+      res.write(item);
+      res.end();
+    });
+  }
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+  if (req.method === 'GET' && req.url === '/api/getJSON') {
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+    fs.readFile(file, 'utf-8', function (err, data) {
+      if (err) {
+        console.log(err);
+        res.write('文件读取失败');
+        res.end();
+      } else {
+        let obj = JSON.parse(data)
+        console.log("getJSON", obj.json);
 
-## Learn More
+        res.write(JSON.stringify(obj.json));
+        res.end();
+      }
+    });
+  }
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+}).listen(3001); // 监听的端口
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```
