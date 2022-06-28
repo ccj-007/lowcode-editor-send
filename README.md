@@ -286,7 +286,7 @@ http.createServer(function (req, res) {
   var timer = null
 
   let defaultOptions = {
-    method: 'local', // 'http' | 'local' 连接远程或者本地
+    method: 'local', // 'http' | 'local' 通过接口返回或者本地静态文件夹获取
     routeName: '', //输入路由名（必填）
     itemName: '', //项目名（必填）
   }
@@ -376,4 +376,39 @@ http.createServer(function (req, res) {
       },
     }
   },
+```
+
+
+
+  ### 4. 开始调用方法
+
+```js
+<template>
+  <div id='main-lowcode'>
+    <div id="content-lowcode">
+    </div>
+  </div>
+
+</template>
+
+<script>
+import { getLowcodePage } from '@/lowcode/index'
+
+export default {
+  data() {
+    return {}
+  },
+  created() {},
+  mounted() {
+    // 获取lowcode页面
+    getLowcodePage('#content-lowcode', {
+      method: 'http' //接口请求方式
+    })
+  }
+}
+</script>
+
+<style lang="less" scoped>
+
+</style>
 ```
