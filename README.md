@@ -1,5 +1,5 @@
 # 关于
-基于amis-editor，通过封装json数据上报、配置、自定义组件等，实现低代码管理后台实时更新，无需手动写json配置。
+### 🚀 ✈️ 🚁 基于amis-editor，通过封装json数据上报、配置、自定义组件等，实现低代码管理后台实时更新，无需手动写json配置。
 
 
 # 如何使用
@@ -402,7 +402,9 @@ export default {
   mounted() {
     // 获取lowcode页面
     getLowcodePage('#content-lowcode', {
-      method: 'http' //接口请求方式
+      method: 'http', //接口请求
+      routeName: 'client-admin',  
+      itemName: 'cms2'
     })
   }
 }
