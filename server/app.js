@@ -30,7 +30,6 @@ http.createServer(function (req, res) {
     req.on('end', function () {
       // json文件需要存入路径
       fs.writeFileSync(file, item)
-      // items.push(item.item);
       // // 将数据返回到客户端
       res.write(item);
       res.end();

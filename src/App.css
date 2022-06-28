@@ -1,7 +1,7 @@
 .send-btn {
   border: none;
-  background: rgb(57, 149, 203);
-  color: #fff;
+  background: #fff;
+  color: #000;
   border-radius: 2px;
   padding: 5px 10px;
   margin: 10px;
@@ -10,4 +10,27 @@
 
 .send-btn:hover {
   opacity: .8;
+}
+
+.mr20 {
+  margin-right: 20px !important;
+}
+
+.ml20 {
+  margin-left: 20px !important;
+}
+input {
+  outline: none;
+  border-radius: 5px;
+  text-decoration:none;
+  border: none;
+  height: 25px;
+}
+
+.tabbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgb(49, 89, 199);
+  color: #fff;
 }
