@@ -29,6 +29,16 @@ class App extends React.Component<any, StateType> {
     }
   }
   componentDidMount() {
+    //这里要请求对应的路由数据
+    this.getJSON()
+  }
+
+  getJSON = () => {
+    if (!this.state.routeName || !this.state.itemName) {
+      alert('请传入必要参数')
+      return
+    }
+    //这里要请求对应的路由数据
     axios.get('http://localhost:3001/api/getJSON').then((res: any) => {
       if (!res || !res.data) return
       let obj = res.data
@@ -42,6 +52,7 @@ class App extends React.Component<any, StateType> {
       alert("获取后端json失败" + JSON.stringify(e))
     })
   }
+
   sendJSON = () => {
     if (this.state.json.type !== 'page') {
       alert('请确保在页面层级更新json')
@@ -160,6 +171,7 @@ class App extends React.Component<any, StateType> {
             </span>
             <span>项目名：</span><input type="text" ref='itemName' placeholder={'请输入有效的项目名'} className='mr20' onChange={() => this.inputItemName()} />
             <span>路由名：</span><input type="text" ref='RouteName' placeholder={'输入项目需要的路由'} onChange={() => this.inputRouteName()} />
+            <button className='send-btn' onClick={this.getJSON}>获取页面</button>
           </div>
           <div>
             <button className='send-btn' onClick={this.backHistoryJSON}>上一步</button>
