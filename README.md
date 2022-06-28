@@ -266,3 +266,114 @@ http.createServer(function (req, res) {
 }).listen(3001); // 监听的端口
 
 ```
+
+
+## 如何在Vue的前端项目中使用 ？
+
+  ### 1. 在静态目录public中的index.html引入对应的sdk
+```js
+  <link rel="stylesheet" href="./lowcode/amis/antd.css" />
+  <link rel="stylesheet" href="./lowcode/amis/iconfont.css" />
+  <script src="./lowcode/amis/sdk.js"></script>
+```
+
+  ### 2. 在路由允许的情况下调用封装的方法，即可渲染lowcode页面
+```js
+  import Vue from 'vue'
+  import defaultConfig from "./config";
+  import axios from 'axios'
+
+  var timer = null
+
+  let defaultOptions = {
+    method: 'local', // 'http' | 'local' 连接远程或者本地
+    routeName: '', //输入路由名（必填）
+    itemName: '', //项目名（必填）
+  }
+  let newOptions  //修改后的配置
+  /**
+   * 在路由允许的情况下调用可生成对应lowcode页面
+   * @param {DOM} DOM 
+   * @param {Object} options 
+   */
+  export const getLowcodePage = (DOM, options = {}) => {
+    newOptions = Object.assign(defaultOptions, options)
+    let { routeName } = newOptions
+    if (!DOM || !routeName) {
+      throw new Error('DOM or routeName is no exist')
+    }
+
+    //handle first render error
+    const check = (routeName) => {
+      let dom = document.querySelector(DOM)
+      if (dom) {
+        getJsonFs(routeName)
+        if (!timer) {
+          clearTimeout(timer)
+        }
+      } else {
+        timer = setTimeout(() => {
+          check(routeName)
+        }, 0)
+      }
+    }
+
+    //get json
+    const getJsonFs = (routeName) => {
+      if (newOptions.method === 'local') {
+        Vue.http.get(`lowcode/pages/${routeName}.json`, {}, { emulateJSON: true }).then((res) => {
+          let obj = JSON.parse(res.bodyText)
+          if (obj) {
+            startAmis(obj)
+          }
+        }).catch((error) => {
+          console.log("error", error);
+        })
+      }
+
+
+      if (newOptions.method === 'http') {
+        //正式项目需要通过post请求传入对象{routeName, itemName}
+        //目前调试使用，注意某些跨域情况在vue.config.js中做跨域代理
+        axios.get('/api/getJSON').then((res) => {
+          let { data } = res
+          startAmis(data)
+          console.log('http', data);
+        }).catch((e) => {
+          alert("获取后端json失败" + JSON.stringify(e))
+        })
+      }
+    }
+
+    //amis render
+    const startAmis = (jsonObj) => {
+      console.log("jsonObj", jsonObj);
+      let amis = window.amisRequire('amis/embed');
+      amis.embed(DOM, jsonObj, {
+        data: {
+          baseUrl: process.env.VUE_APP_API_BASE_URL
+        }
+      }, defaultConfig
+      )
+    }
+
+    //entrance
+    check(routeName)
+  }
+
+```
+
+  ### 3. 做跨域代理
+
+```js
+  //vue.config.js
+  devServer: {
+    proxy: {
+      //测试lowcode使用
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+      },
+    }
+  },
+```
