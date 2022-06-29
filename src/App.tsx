@@ -4,13 +4,16 @@ import './App.css'
 import axios from 'axios'
 
 interface StateType {
-  json: any,
-  routeName: string,
-  itemName: string,
+  json: any
+  routeName: string
+  itemName: string
   preview: boolean
-  historyList: any[],
+  historyList: any[]
   step: number
   maxHistoryNum: number
+  baseURL: string
+  useTestBaseURL: string
+  isLocalTest: boolean
 }
 
 class App extends React.Component<any, StateType> {
@@ -24,29 +27,51 @@ class App extends React.Component<any, StateType> {
       itemName: "cms2", //默认为''
       preview: false,
       historyList: [],
-      step: 0,   //操作一次step + 1， -1初始状态
-      maxHistoryNum: 5
+      step: 0,
+      maxHistoryNum: 10,
+      baseURL: window.localStorage.getItem('baseURL') || 'https://dev.zzss.com', //正式开发使用
+      useTestBaseURL: 'http://localhost:3001', //本地调试环境切换使用
+      isLocalTest: true,  //用于本地调试环境，正式开发请设置为false
     }
   }
   componentDidMount() {
-    //这里要请求对应的路由数据
-    this.getJSON()
+    //获取url query
+    this.checkQuery()
+    setTimeout(() => {
+      this.getJSON()
+    }, 0)
   }
 
   getJSON = () => {
-    if (!this.state.routeName || !this.state.itemName) {
+    //判断是否首次进入
+    let { routeName, itemName, isLocalTest, baseURL, useTestBaseURL, } = this.state
+
+    if (!routeName || !itemName) {
       alert('请传入必要参数')
       return
     }
+    let url = isLocalTest ? useTestBaseURL : baseURL
     //这里要请求对应的路由数据
-    axios.get('http://localhost:3001/api/getJSON').then((res: any) => {
-      if (!res || !res.data) return
+    axios.post(url + '/api/getJSON',
+      {
+        routeName: this.state.routeName,
+        itemName: this.state.itemName
+      },
+    ).then((res: any) => {
+      if (res.data.success === false) {
+        alert(res.data.msg)
+        return
+      }
+
       let obj = res.data
+      this.clearJSON()
+      let newObj = this.changeBaseURLtoDomain(obj)
+
       this.setState({
-        json: obj,
-        historyList: [...this.state.historyList, obj],
+        json: newObj,
+        historyList: [...this.state.historyList, newObj],
       }, () => {
-        console.log(this.state.json);
+        console.log("获取到最新的JSON", this.state.json);
       })
     }).catch((e) => {
       alert("获取后端json失败" + JSON.stringify(e))
@@ -54,16 +79,20 @@ class App extends React.Component<any, StateType> {
   }
 
   sendJSON = () => {
+    let { routeName, itemName, isLocalTest, baseURL, useTestBaseURL } = this.state
     if (this.state.json.type !== 'page') {
       alert('请确保在页面层级更新json')
       return
     }
-    if (!this.state.routeName || !this.state.itemName) {
+    if (!routeName || !itemName) {
       alert('请传入必要参数')
       return
     }
-    axios.post('http://localhost:3001/api/setJSON', {
-      json: this.state.json,
+    let obj = this.chengeDomaintoBaseURL(this.state.json)
+
+    let url = isLocalTest ? useTestBaseURL : baseURL
+    axios.post(url + '/api/setJSON', {
+      json: obj,
       routeName: this.state.routeName,
       itemName: this.state.itemName
     },
@@ -73,10 +102,16 @@ class App extends React.Component<any, StateType> {
         }
       }
     ).then((res) => {
+      if (res.data.success === false) {
+        alert(res.data.msg)
+        return
+      }
+
       if (res && res.data && res.data.json) {
         alert("配置成功")
+        let obj = res.data.json
         this.setState({
-          json: res.data.json
+          json: obj
         })
       }
     }).catch((e) => {
@@ -101,8 +136,29 @@ class App extends React.Component<any, StateType> {
       }
       console.log("change", this.state.historyList);
     })
-
   }
+  //获取query
+  checkQuery = () => {
+    let itemName = this.getQueryString('itemName')
+    let routeName = this.getQueryString('routeName')
+    if (itemName && routeName) {
+      this.setState({
+        itemName,
+        routeName
+      })
+    }
+  }
+  // 获取查询字符串
+  getQueryString = (name: string) => {
+    var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+    var r = window.location.search.substr(1).match(reg);
+    if (r != null) {
+      return unescape(r[2]);
+    } else {
+      return null
+    };
+  }
+  //监听项目名输入
   inputItemName = () => {
     //@ts-ignore
     let val = this.refs.itemName.value;
@@ -110,6 +166,7 @@ class App extends React.Component<any, StateType> {
       itemName: val
     })
   }
+  //监听路由输入
   inputRouteName = () => {
     //@ts-ignore
     let val = this.refs.routeName.value;
@@ -161,16 +218,43 @@ class App extends React.Component<any, StateType> {
     }
   }
 
+  //根路径
+  inputUrlName = () => {
+    //@ts-ignore
+    let val = this.refs.baseURL.value;
+    this.setState({
+      baseURL: val,
+    }, () => {
+      window.localStorage.setItem('baseURL', this.state.baseURL)
+    })
+  }
+
+  //转为domain
+  changeBaseURLtoDomain = (obj: any) => {
+    let { baseURL } = this.state
+    if (!baseURL) return
+    let str = JSON.stringify(obj)
+    let res = str.replace(/\$\{baseURL\}/g, baseURL)
+    return JSON.parse(res)
+  }
+  //转为${baseURL}
+  chengeDomaintoBaseURL = (obj: any) => {
+    let { baseURL } = this.state
+    if (!baseURL) return
+    let str = JSON.stringify(obj)
+    let urlReg = new RegExp(baseURL, 'g')
+    let res = str.replace(urlReg, '${baseURL}')
+    return JSON.parse(res)
+  }
+
   render() {
     return (
       <>
         <div className='tabbar'>
           <div>
-            <span className='ml20 mr20'>
-              <span className='mr20'>当前项目名： {this.state.itemName}  </span> <span>当前路由： {this.state.routeName}</span>
-            </span>
-            <span>项目名：</span><input type="text" ref='itemName' placeholder={'请输入有效的项目名'} className='mr20' onChange={() => this.inputItemName()} />
-            <span>路由名：</span><input type="text" ref='RouteName' placeholder={'输入项目需要的路由'} onChange={() => this.inputRouteName()} />
+            <span className='ml20'>项目名：</span><input type="text" ref='itemName' placeholder={this.state.itemName} onChange={() => this.inputItemName()} />
+            <span className='ml20'>路由名：</span><input type="text" ref='routeName' placeholder={this.state.routeName} onChange={() => this.inputRouteName()} />
+            <span className='ml20'>设置baseURL：</span><input type="text" ref='baseURL' placeholder={this.state.baseURL} onChange={() => this.inputUrlName()} />
             <button className='send-btn' onClick={this.getJSON}>获取页面</button>
           </div>
           <div>

@@ -3,6 +3,7 @@
 # dependencies
 /node_modules
 /.pnp
+/server/client-admin.json
 .pnp.js
 
 # testing

@@ -1,14 +1,44 @@
 # 关于
 ### 🚀 ✈️ 🚁 基于amis-editor，通过封装json数据上报、配置、自定义组件等，实现低代码管理后台实时更新，无需手动写json配置。
 
+## 👍 简单一句话： 你不用敲代码了！！
+## ⭐⭐⭐觉得不错点个star再走 ！⭐⭐⭐
+![](https://pic.zzss.com/manager/attach/common/20220629/784994.png)
+
+### 在原框架上实现了哪些功能
+
+1. 支持url路由跳转对应的配置页面
+2. 支持历史记录修改
+3. 支持预览
+4. 支持重置
+5. 支持配置更新前端lowcode页面（不用敲代码喽！！！）
+6. 通过路由及项目名配置查询
+7. 支持切换环境
 
 # 如何使用
 
 ```
   npm i           //安装依赖
   npm run start   //通过devserve启动前端页面
-  npm run server  //启动node服务
+  npm run server  //启动node服务，默认3001端口
   
+```
+
+# 注意
+
+### 1. 本地调试请在server.js定义好文件名，本地调用通过文件名对应路由名。如果需要数据库连接，请定义好项目名和路由名。json配置在原来基础上，已经做了一个包裹,  核心数据配置在json属性内，为了方便定位以及后期维护扩展。
+ 
+```js
+{
+  "json": {
+    "type": "page",
+    "title": "Hello world",
+    "body": [
+    ]
+  },
+  "routeName": "test2.json",
+  "itemName": "cms2"
+}
 ```
 
 # 核心
@@ -20,13 +50,16 @@ import './App.css'
 import axios from 'axios'
 
 interface StateType {
-  json: any,
-  routeName: string,
-  itemName: string,
+  json: any
+  routeName: string
+  itemName: string
   preview: boolean
-  historyList: any[],
+  historyList: any[]
   step: number
   maxHistoryNum: number
+  baseURL: string
+  useTestBaseURL: string
+  isLocalTest: boolean
 }
 
 class App extends React.Component<any, StateType> {
@@ -40,35 +73,72 @@ class App extends React.Component<any, StateType> {
       itemName: "cms2", //默认为''
       preview: false,
       historyList: [],
-      step: 0,   //操作一次step + 1， -1初始状态
-      maxHistoryNum: 5
+      step: 0,
+      maxHistoryNum: 10,
+      baseURL: window.localStorage.getItem('baseURL') || 'https://dev.zzss.com', //正式开发使用
+      useTestBaseURL: 'http://localhost:3001', //本地调试环境切换使用
+      isLocalTest: true,  //用于本地调试环境，正式开发请设置为false
     }
   }
   componentDidMount() {
-    axios.get('http://localhost:3001/api/getJSON').then((res: any) => {
-      if (!res || !res.data) return
+    //获取url query
+    this.checkQuery()
+    setTimeout(() => {
+      this.getJSON()
+    }, 0)
+  }
+
+  getJSON = () => {
+    //判断是否首次进入
+    let { routeName, itemName, isLocalTest, baseURL, useTestBaseURL, } = this.state
+
+    if (!routeName || !itemName) {
+      alert('请传入必要参数')
+      return
+    }
+    let url = isLocalTest ? useTestBaseURL : baseURL
+    //这里要请求对应的路由数据
+    axios.post(url + '/api/getJSON',
+      {
+        routeName: this.state.routeName,
+        itemName: this.state.itemName
+      },
+    ).then((res: any) => {
+      if (res.data.success === false) {
+        alert(res.data.msg)
+        return
+      }
+
       let obj = res.data
+      this.clearJSON()
+      let newObj = this.changeBaseURLtoDomain(obj)
+
       this.setState({
-        json: obj,
-        historyList: [...this.state.historyList, obj],
+        json: newObj,
+        historyList: [...this.state.historyList, newObj],
       }, () => {
-        console.log(this.state.json);
+        console.log("获取到最新的JSON", this.state.json);
       })
     }).catch((e) => {
       alert("获取后端json失败" + JSON.stringify(e))
     })
   }
+
   sendJSON = () => {
+    let { routeName, itemName, isLocalTest, baseURL, useTestBaseURL } = this.state
     if (this.state.json.type !== 'page') {
       alert('请确保在页面层级更新json')
       return
     }
-    if (!this.state.routeName || !this.state.itemName) {
+    if (!routeName || !itemName) {
       alert('请传入必要参数')
       return
     }
-    axios.post('http://localhost:3001/api/setJSON', {
-      json: this.state.json,
+    let obj = this.chengeDomaintoBaseURL(this.state.json)
+
+    let url = isLocalTest ? useTestBaseURL : baseURL
+    axios.post(url + '/api/setJSON', {
+      json: obj,
       routeName: this.state.routeName,
       itemName: this.state.itemName
     },
@@ -78,10 +148,16 @@ class App extends React.Component<any, StateType> {
         }
       }
     ).then((res) => {
+      if (res.data.success === false) {
+        alert(res.data.msg)
+        return
+      }
+
       if (res && res.data && res.data.json) {
         alert("配置成功")
+        let obj = res.data.json
         this.setState({
-          json: res.data.json
+          json: obj
         })
       }
     }).catch((e) => {
@@ -106,8 +182,29 @@ class App extends React.Component<any, StateType> {
       }
       console.log("change", this.state.historyList);
     })
-
   }
+  //获取query
+  checkQuery = () => {
+    let itemName = this.getQueryString('itemName')
+    let routeName = this.getQueryString('routeName')
+    if (itemName && routeName) {
+      this.setState({
+        itemName,
+        routeName
+      })
+    }
+  }
+  // 获取查询字符串
+  getQueryString = (name: string) => {
+    var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+    var r = window.location.search.substr(1).match(reg);
+    if (r != null) {
+      return unescape(r[2]);
+    } else {
+      return null
+    };
+  }
+  //监听项目名输入
   inputItemName = () => {
     //@ts-ignore
     let val = this.refs.itemName.value;
@@ -115,6 +212,7 @@ class App extends React.Component<any, StateType> {
       itemName: val
     })
   }
+  //监听路由输入
   inputRouteName = () => {
     //@ts-ignore
     let val = this.refs.routeName.value;
@@ -166,16 +264,44 @@ class App extends React.Component<any, StateType> {
     }
   }
 
+  //根路径
+  inputUrlName = () => {
+    //@ts-ignore
+    let val = this.refs.baseURL.value;
+    this.setState({
+      baseURL: val,
+    }, () => {
+      window.localStorage.setItem('baseURL', this.state.baseURL)
+    })
+  }
+
+  //转为domain
+  changeBaseURLtoDomain = (obj: any) => {
+    let { baseURL } = this.state
+    if (!baseURL) return
+    let str = JSON.stringify(obj)
+    let res = str.replace(/\$\{baseURL\}/g, baseURL)
+    return JSON.parse(res)
+  }
+  //转为${baseURL}
+  chengeDomaintoBaseURL = (obj: any) => {
+    let { baseURL } = this.state
+    if (!baseURL) return
+    let str = JSON.stringify(obj)
+    let urlReg = new RegExp(baseURL, 'g')
+    let res = str.replace(urlReg, '${baseURL}')
+    return JSON.parse(res)
+  }
+
   render() {
     return (
       <>
         <div className='tabbar'>
           <div>
-            <span className='ml20 mr20'>
-              <span className='mr20'>当前项目名： {this.state.itemName}  </span> <span>当前路由： {this.state.routeName}</span>
-            </span>
-            <span>项目名：</span><input type="text" ref='itemName' placeholder={'请输入有效的项目名'} className='mr20' onChange={() => this.inputItemName()} />
-            <span>路由名：</span><input type="text" ref='RouteName' placeholder={'输入项目需要的路由'} onChange={() => this.inputRouteName()} />
+            <span className='ml20'>项目名：</span><input type="text" ref='itemName' placeholder={this.state.itemName} onChange={() => this.inputItemName()} />
+            <span className='ml20'>路由名：</span><input type="text" ref='routeName' placeholder={this.state.routeName} onChange={() => this.inputRouteName()} />
+            <span className='ml20'>设置baseURL：</span><input type="text" ref='baseURL' placeholder={this.state.baseURL} onChange={() => this.inputUrlName()} />
+            <button className='send-btn' onClick={this.getJSON}>获取页面</button>
           </div>
           <div>
             <button className='send-btn' onClick={this.backHistoryJSON}>上一步</button>
@@ -210,7 +336,18 @@ export default App;
 const http = require("http");
 const fs = require('fs');
 const path = require('path');
-const file = path.join(__dirname, 'client-admin.json')
+
+/**
+ * 失败数据模型
+ * @param {*} msg 消息 
+ */
+function errModel (msg) {
+  let obj = {
+    success: false,
+    msg
+  }
+  return JSON.stringify(obj)
+}
 
 http.createServer(function (req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -237,27 +374,48 @@ http.createServer(function (req, res) {
     });
     // 数据发送完成
     req.on('end', function () {
-      // json文件需要存入路径
-      fs.writeFileSync(file, item)
-      // items.push(item.item);
-      // // 将数据返回到客户端
-      res.write(item);
-      res.end();
+      let items = JSON.parse(item)
+      if (items.routeName && items.itemName) {
+        let file = path.join(__dirname, `${items.routeName}.json`)
+        // json文件需要存入路径
+        fs.writeFileSync(file, item)
+        //将数据返回到客户端
+        res.write(item);
+        res.end();
+      } else {
+        res.write(errModel('文件配置失败, 检查路由或项目名是否正确'));
+        res.end();
+      }
     });
   }
 
-  if (req.method === 'GET' && req.url === '/api/getJSON') {
+  //本地模拟直接用client-admin.json
+  if (req.method === 'POST' && req.url === '/api/getJSON') {
+    let item = '';
+    // 读取每次发送的数据
+    req.on('data', function (chunk) {
+      item += chunk.toString();
+    });
+    // 数据发送完成
+    req.on('end', function () {
+      let items = JSON.parse(item)
 
-    fs.readFile(file, 'utf-8', function (err, data) {
-      if (err) {
-        console.log(err);
-        res.write('文件读取失败');
-        res.end();
+      if (items.routeName && items.itemName) {
+        let file = path.join(__dirname, `${items.routeName}.json`)
+
+        fs.readFile(file, 'utf-8', function (err, data) {
+          if (err) {
+            console.log(err);
+            res.write(errModel('请检查路由是否正确'));
+            res.end();
+          } else {
+            let obj = JSON.parse(data)
+            res.write(JSON.stringify(obj.json));
+            res.end();
+          }
+        });
       } else {
-        let obj = JSON.parse(data)
-        console.log("getJSON", obj.json);
-
-        res.write(JSON.stringify(obj.json));
+        res.write(errModel('请检查路由或项目名是否正确'));
         res.end();
       }
     });
@@ -265,12 +423,13 @@ http.createServer(function (req, res) {
 
 }).listen(3001); // 监听的端口
 
+
 ```
 
 
 ## 如何在Vue的前端项目中使用 ？
 
-  ### 1. 在静态目录public中的index.html引入对应的sdk
+  ### 1. 在静态目录public中的index.html引入对应的sdk，sdk官网有可以自行下载
 ```js
   <link rel="stylesheet" href="./lowcode/amis/antd.css" />
   <link rel="stylesheet" href="./lowcode/amis/iconfont.css" />

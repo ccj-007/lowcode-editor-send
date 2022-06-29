@@ -1,0 +1,52 @@
+{
+  "json": {
+    "type": "page",
+    "title": "Hello world",
+    "body": [
+      {
+        "type": "tpl",
+        "tpl": "初始页面",
+        "inline": false
+      },
+      {
+        "type": "input-password",
+        "label": "密码",
+        "name": "password",
+        "id": "u:8731be72a043"
+      },
+      {
+        "type": "input-year",
+        "name": "year",
+        "id": "u:012422514c53"
+      },
+      {
+        "type": "card",
+        "header": {
+          "title": "标题",
+          "subTitle": "副标题"
+        },
+        "body": [
+          {
+            "type": "tpl",
+            "tpl": "内容",
+            "inline": false
+          }
+        ],
+        "actions": [
+          {
+            "type": "button",
+            "label": "按钮",
+            "actionType": "dialog",
+            "dialog": {
+              "title": "标题",
+              "body": "内容"
+            }
+          }
+        ],
+        "id": "u:756b46f8a7b8"
+      }
+    ]
+  },
+  "routeName": "test2.json",
+  "itemName": "cms2"
+}

@@ -1,0 +1,78 @@
+{
+  "json": {
+    "type": "page",
+    "body": [
+      {
+        "type": "qrcode",
+        "value": "https://amis.baidu.com",
+        "id": "u:3359692fb090"
+      },
+      {
+        "type": "audio",
+        "autoPlay": false,
+        "src": "",
+        "id": "u:92e4cb71089d"
+      },
+      {
+        "type": "input-group",
+        "name": "input-group",
+        "label": "input 组合",
+        "body": [
+          {
+            "type": "input-text",
+            "inputClassName": "b-r-none p-r-none",
+            "name": "input-group"
+          },
+          {
+            "type": "submit",
+            "label": "提交",
+            "level": "primary"
+          }
+        ],
+        "id": "u:b4b0a0b5c331"
+      },
+      {
+        "type": "image",
+        "id": "u:8ef0461e07d9"
+      },
+      {
+        "type": "qrcode",
+        "value": "https://amis.baidu.com",
+        "id": "u:f0c33244c59f"
+      },
+      {
+        "type": "qrcode",
+        "id": "u:39b48b694b56",
+        "value": "https://amis.baidu.com"
+      },
+      {
+        "type": "nested-select",
+        "label": "嵌套下拉框",
+        "name": "nestedSelect",
+        "options": [
+          {
+            "label": "选项A",
+            "value": "A"
+          },
+          {
+            "label": "选项B",
+            "value": "B",
+            "children": [
+              {
+                "label": "选项C",
+                "value": "C"
+              },
+              {
+                "label": "选项D",
+                "value": "D"
+              }
+            ]
+          }
+        ],
+        "id": "u:9a57a7224b24"
+      }
+    ]
+  },
+  "routeName": "test1.json",
+  "itemName": "cms2"
+}
