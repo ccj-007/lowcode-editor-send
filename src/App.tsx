@@ -4,11 +4,11 @@ import './App.css'
 import axios from 'axios'
 
 interface StateType {
-  json: any
+  json: any,
   routeName: string
   itemName: string
   preview: boolean
-  historyList: any[]
+  historyList: Object[]
   step: number
   maxHistoryNum: number
   baseURL: string
@@ -43,7 +43,6 @@ class App extends React.Component<any, StateType> {
   }
 
   getJSON = () => {
-    //判断是否首次进入
     let { routeName, itemName, isLocalTest, baseURL, useTestBaseURL, } = this.state
 
     if (!routeName || !itemName) {
@@ -57,7 +56,7 @@ class App extends React.Component<any, StateType> {
         routeName: this.state.routeName,
         itemName: this.state.itemName
       },
-    ).then((res: any) => {
+    ).then((res) => {
       if (res.data.success === false) {
         alert(res.data.msg)
         return
