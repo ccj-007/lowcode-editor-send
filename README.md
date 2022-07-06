@@ -498,7 +498,14 @@ http.createServer(function (req, res) {
       if (newOptions.method === 'http') {
         //正式项目需要通过post请求传入对象{routeName, itemName}
         //目前调试使用，注意某些跨域情况在vue.config.js中做跨域代理
-        axios.get('/api/getJSON').then((res) => {
+        axios.post('/api/getJSON', {
+          routeName: options.routeName,
+          itemName: options.itemName
+        },{
+            headers: {
+              'Content-Type': 'application/json'
+          }
+        }).then((res) => {
           let { data } = res
           startAmis(data)
           console.log('http', data);
@@ -563,7 +570,7 @@ export default {
   mounted() {
     // 获取lowcode页面
     getLowcodePage('#content-lowcode', {
-      method: 'http', //接口请求
+      method: 'http', //'http'代表接口请求，注意如果是'local',请在public文件夹中放入json配置文件，即可本地获取json页面
       routeName: 'client-admin',  
       itemName: 'cms2'
     })
@@ -575,3 +582,11 @@ export default {
 
 </style>
 ```
+
+# 总结
+
+### 实现以上基本能快速将中后台系统集成进低代码页面, 甚至单独搭建一个低代码管理后台。 可谓是crud的解决办法的神器。
+
+---
+
+### 问题:  如果在集成中的样式需要做到统一，可以在amis包的amis.css修改，建议根据原有中后台系统配色修改，独立引入html。如果存在高度定制化的组件，也是可以通过自定义组件的方式引入，同时配合编辑器。但要注意amis不太适合高度定制化、交互复杂的场景，这点要特别注意。
