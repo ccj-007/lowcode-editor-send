@@ -1,0 +1,71 @@
+/**
+  * amis 低代码 表格样式
+  */
+/* 表格搜索框 */
+.cxd-DropDown {
+	display: none;
+}
+.cxd-Table-searchableForm {
+	background: #fff;
+}
+.cxd-Panel {
+	margin-bottom: 20px;
+	box-shadow: 0 0px 0px;
+	border-bottom: 1px solid #f0f0f0;
+}
+.cxd-Form-label {
+	color: rgba(0, 0, 0, 0.85);
+	font-size: 14px;
+	font-weight: 600;
+}
+.cxd-Form-item {
+	margin-bottom: 0;
+	display: block;
+}
+.cxd-Button:not(:disabled):not(.is-disabled) {
+	cursor: pointer;
+	padding: 0 1rem;
+}
+@media (min-width: 576px) {
+	.cxd-Form-item--horizontal .cxd-Form-itemColumn--normal {
+		margin: 0;
+		margin: 0 0 8px 0;
+		width: 100%;
+		text-align: left;
+	}
+}
+/* 表格多选 */
+.cxd-Table-table > thead > tr > th.cxd-Table-checkCell,
+.cxd-Table-table > tbody > tr > td.cxd-Table-checkCell {
+	border-right: 0;
+	width: 0.0625rem;
+	padding-right: 0.625rem;
+	white-space: nowrap;
+	border: 1px solid #e8e9eb;
+}
+.cxd-Table-table > thead > tr > th:not(:last-child) {
+	border-right: 1px solid #e8e9eb;
+}
+.cxd-Table-table > thead > tr > th,
+.cxd-Table-table > tbody > tr > td {
+	border: 1px solid #e8e9eb;
+}
+/* 表格 */
+.cxd-Table-table > tbody > .cxd-Table-tr--even {
+	background: #fafafa;
+}
+.cxd-Table-table > tbody > tr.is-checked {
+	background: unset;
+}
+.cxd-Table-table > tbody > tr:hover,
+.cxd-Table-table > tbody > tr.is-hovered {
+	background: #f5f7fa;
+}
+/* 表头 */
+.cxd-TableCell--title {
+	font-weight: 500;
+}
+/* 表格操作按钮的禁用 */
+.cxd-OperationField > .cxd-Button--link {
+	padding: 0 1rem;
+}

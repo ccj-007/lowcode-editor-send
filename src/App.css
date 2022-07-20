@@ -19,10 +19,11 @@
 .ml20 {
   margin-left: 20px !important;
 }
+
 input {
   outline: none;
   border-radius: 5px;
-  text-decoration:none;
+  text-decoration: none;
   border: none;
   height: 25px;
 }
@@ -33,4 +34,12 @@ input {
   align-items: center;
   background: rgb(49, 89, 199);
   color: #fff;
+}
+
+input {
+  width: 150px
+}
+
+.input-info {
+  width: 100px
 }

@@ -22,6 +22,8 @@
 6. 通过路由及项目名配置查询
 7. 支持切换环境
 8. 编辑器打包 (关闭 sourcemap 和 node 内存溢出问题处理， 15M 体积)
+9. 新增crud模板
+10. 新增自定义css样式模板
 
 # 如何使用
 
@@ -35,7 +37,9 @@
 
 # 注意
 
-### 1. 本地调试请在 server 文件夹下定义好文件名，本地调用通过文件名对应路由名。如果需要数据库连接，请定义好项目名和路由名。json 配置在原来基础上，已经做了一个包裹, 核心数据配置在 json 属性内，为了方便定位以及后期维护扩展。
+### 1. 本地调试请在 server 文件夹下定义好文件名，本地调用通过文件名对应路由名。如果需要数据库连接，请定义好项目名和路由名等字段用于查询。json 配置在原来基础上，已经做了一个包裹, 核心数据配置在 json 属性内，为了方便定位以及后期维护扩展。
+
+### 2. 在编辑中极有可能遇到点错导致页面丢失问题，可以做个发布的版本备份功能
 
 ```js
 {
@@ -54,155 +58,186 @@
 
 ```js
 //src/App.tsx
-import React from 'react';
-import { Editor } from 'amis-editor';
-import './App.css'
-import axios from 'axios'
+import React from "react";
+import { Editor } from "amis-editor";
+import "./App.css";
+import axios from "axios";
+import crudTpl from "./tpl/crud.json"; //json文件默认可以在src目录下导入
+import { proxy } from "ajax-hook";  //拦截amis内部ajax请求
 
 interface StateType {
-  json: any
-  routeName: string
-  itemName: string
-  preview: boolean
-  historyList: any[]
-  step: number
-  maxHistoryNum: number
-  baseURL: string
-  useTestBaseURL: string
-  isLocalTest: boolean
+  json: any;
+  routeName: string;
+  itemName: string;
+  preview: boolean;
+  historyList: Object[];
+  step: number;
+  maxHistoryNum: number;
+  baseURL: string;
+  isCustomStyle: boolean
+  linkDOM: HTMLElement | null
 }
 
 class App extends React.Component<any, StateType> {
   constructor(props: any) {
-    super(props)
+    super(props);
     this.state = {
-      json: {
-        type: "page"  //确保是页面层级
-      },
-      routeName: 'client-admin',   //默认为''
-      itemName: "cms2", //默认为''
+      json: {},
+      routeName: window.localStorage.getItem("lowcode_routeName") || "test1", //test1对应server文件夹下的json的文件名（本地调试）
+      itemName: window.localStorage.getItem("lowcode_itemName") || "cms2",
       preview: false,
       historyList: [],
       step: 0,
       maxHistoryNum: 10,
-      baseURL: window.localStorage.getItem('baseURL') || 'https://dev.zzss.com', //正式开发使用
-      useTestBaseURL: 'http://localhost:3001', //本地调试环境切换使用
-      isLocalTest: true,  //用于本地调试环境，正式开发请设置为false
-    }
+      baseURL: window.localStorage.getItem("baseURL") || "http://localhost:3001", //正式开发环境请自行修改
+      isCustomStyle: window.localStorage.getItem("lowcode_style") === 'true' ? true : false,
+      linkDOM: null,
+    };
   }
   componentDidMount() {
+    //拦截处理
+    proxy({
+      onRequest: (config, handler) => {
+        // config.headers = headers;  在这里处理通用请求头
+        config.url = this.state.baseURL + config.url;  //处理域名
+        console.log("config", config);
+        handler.next(config);
+      },
+      onError: (err, handler) => {
+        console.log(err.type);
+        handler.next(err);
+      },
+      onResponse: (response, handler) => {
+        console.log(response.response);
+        handler.next(response);
+      },
+    });
     //获取url query
-    this.checkQuery()
+    this.checkQuery();
     setTimeout(() => {
-      this.getJSON()
-    }, 0)
+      this.getJSON();
+    }, 0);
   }
 
   getJSON = () => {
-    let { routeName, itemName, isLocalTest, baseURL, useTestBaseURL, } = this.state
+    let {
+      routeName,
+      itemName,
+    } = this.state;
 
     if (!routeName || !itemName) {
-      alert('请传入必要参数')
-      return
+      alert("请传入必要参数");
+      return;
     }
-    let url = isLocalTest ? useTestBaseURL : baseURL
     //这里要请求对应的路由数据
-    axios.post(url + '/api/getJSON',
-      {
+    axios
+      .post("/api/getJSON", {
         routeName: this.state.routeName,
-        itemName: this.state.itemName
-      },
-    ).then((res: any) => {
-      if (res.data.success === false) {
-        alert(res.data.msg)
-        return
-      }
-
-      let obj = res.data
-      this.clearJSON()
-      let newObj = this.changeBaseURLtoDomain(obj)
-
-      this.setState({
-        json: newObj,
-        historyList: [...this.state.historyList, newObj],
-      }, () => {
-        console.log("获取到最新的JSON", this.state.json);
+        itemName: this.state.itemName,
       })
-    }).catch((e) => {
-      alert("获取后端json失败" + JSON.stringify(e))
-    })
-  }
+      .then((res) => {
+        if (res.data.success === false) {
+          alert(res.data.msg);
+          return;
+        }
+
+        let obj = res.data;
+        this.clearJSON();
+        let newObj = this.changeBaseURLtoDomain(obj);
+
+        this.setState(
+          {
+            json: newObj,
+            historyList: [...this.state.historyList, newObj],
+          },
+          () => {
+            console.log("获取到最新的JSON", this.state.json);
+          }
+        );
+      })
+      .catch((e) => {
+        alert("获取后端json失败" + JSON.stringify(e));
+      });
+  };
 
   sendJSON = () => {
-    let { routeName, itemName, isLocalTest, baseURL, useTestBaseURL } = this.state
-    if (this.state.json.type !== 'page') {
-      alert('请确保在页面层级更新json')
-      return
-    }
+    let {
+      routeName,
+      itemName,
+    } = this.state;
+    console.log(this.state.json)
     if (!routeName || !itemName) {
-      alert('请传入必要参数')
-      return
+      alert("请传入必要参数");
+      return;
     }
-    let obj = this.chengeDomaintoBaseURL(this.state.json)
+    let obj = this.chengeDomaintoBaseURL(this.state.json);
 
-    let url = isLocalTest ? useTestBaseURL : baseURL
-    axios.post(url + '/api/setJSON', {
-      json: obj,
-      routeName: this.state.routeName,
-      itemName: this.state.itemName
-    },
-      {
-        headers: {
-          'Content-Type': 'application/json'
+    axios
+      .post(
+        "/api/setJSON",
+        {
+          json: obj,
+          routeName: this.state.routeName,
+          itemName: this.state.itemName,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-      }
-    ).then((res) => {
-      if (res.data.success === false) {
-        alert(res.data.msg)
-        return
-      }
+      )
+      .then((res) => {
+        if (res.data.success === false) {
+          alert(res.data.msg);
+          return;
+        }
 
-      if (res && res.data && res.data.json) {
-        alert("配置成功")
-        let obj = res.data.json
-        this.setState({
-          json: obj
-        })
-      }
-    }).catch((e) => {
-      alert("存入配置失败" + JSON.stringify(e))
-    })
-  }
+        if (res && res.data && res.data.json) {
+          alert("配置成功");
+          let obj = res.data.json;
+          this.setState({
+            json: obj,
+          });
+        }
+      })
+      .catch((e) => {
+        alert("存入配置失败" + JSON.stringify(e));
+      });
+  };
   //监听lowcode的json改变
   handleChange = (e: any) => {
-    if (!e) return
-    this.setState({
-      json: e,
-      historyList: [...this.state.historyList, e],
-      step: this.state.step + 1
-    }, () => {
-      let { historyList, maxHistoryNum } = this.state
-      if (historyList.length > maxHistoryNum) {
-        let limitObj = [...historyList].splice(-maxHistoryNum)
-        this.setState({
-          historyList: limitObj,
-          step: this.state.step - 1
-        })
+    console.log("更新了");
+
+    this.setState(
+      {
+        json: e,
+        historyList: [...this.state.historyList, e],
+        step: this.state.step + 1,
+      },
+      () => {
+        let { historyList, maxHistoryNum } = this.state;
+        if (historyList.length > maxHistoryNum) {
+          let limitObj = [...historyList].splice(-maxHistoryNum);
+          this.setState({
+            historyList: limitObj,
+            step: this.state.step - 1,
+          });
+        }
+        console.log("change", this.state.historyList);
       }
-      console.log("change", this.state.historyList);
-    })
-  }
+    );
+  };
   //获取query
   checkQuery = () => {
-    let itemName = this.getQueryString('itemName')
-    let routeName = this.getQueryString('routeName')
+    let itemName = this.getQueryString("itemName");
+    let routeName = this.getQueryString("routeName");
     if (itemName && routeName) {
       this.setState({
         itemName,
-        routeName
-      })
+        routeName,
+      });
     }
-  }
+  };
   // 获取查询字符串
   getQueryString = (name: string) => {
     var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
@@ -210,129 +245,244 @@ class App extends React.Component<any, StateType> {
     if (r != null) {
       return unescape(r[2]);
     } else {
-      return null
-    };
-  }
+      return null;
+    }
+  };
   //监听项目名输入
   inputItemName = () => {
     //@ts-ignore
     let val = this.refs.itemName.value;
     this.setState({
-      itemName: val
-    })
-  }
+      itemName: val,
+    });
+    window.localStorage.setItem("lowcode_itemName", val)
+  };
   //监听路由输入
   inputRouteName = () => {
     //@ts-ignore
     let val = this.refs.routeName.value;
     this.setState({
-      routeName: val
-    })
-  }
+      routeName: val,
+    });
+    window.localStorage.setItem("lowcode_routeName", val)
+  };
   //开始预览
   startPreview = () => {
     this.setState({
-      preview: !this.state.preview
-    })
-  }
+      preview: !this.state.preview,
+    });
+  };
   //重置
   clearJSON = () => {
     this.setState({
-      json: {}
-    })
-  }
+      json: {},
+    });
+  };
   //上一步
   backHistoryJSON = () => {
-    let { step, historyList } = this.state
+    let { step, historyList } = this.state;
     if (step - 1 >= 0) {
-      this.setState({
-        step: step - 1,
-      }, () => {
-        this.setState({
-          json: historyList[this.state.step]
-        })
-      })
+      this.setState(
+        {
+          step: step - 1,
+        },
+        () => {
+          this.setState({
+            json: historyList[this.state.step],
+          });
+        }
+      );
     } else {
-      alert('您当前没有历史记录')
+      alert("您当前没有历史记录");
     }
-  }
+  };
   //下一步
   goHistoryJSON = () => {
-    let { step, historyList } = this.state
-    let curStep = historyList.length - 1
+    let { step, historyList } = this.state;
+    let curStep = historyList.length - 1;
     if (step < curStep) {
-      this.setState({
-        step: step + 1,
-      }, () => {
-        this.setState({
-          json: historyList[this.state.step]
-        })
-      })
+      this.setState(
+        {
+          step: step + 1,
+        },
+        () => {
+          this.setState({
+            json: historyList[this.state.step],
+          });
+        }
+      );
     } else {
-      alert('已经是最新!')
+      alert("已经是最新!");
     }
-  }
+  };
 
   //根路径
   inputUrlName = () => {
     //@ts-ignore
     let val = this.refs.baseURL.value;
+    //@ts-ignore
+    this.setState(
+      {
+        baseURL: val,
+      },
+      () => {
+        window.localStorage.setItem("baseURL", this.state.baseURL);
+      }
+    );
+  };
+  //设置自定义样式
+  setStyles = () => {
     this.setState({
-      baseURL: val,
+      isCustomStyle: !this.state.isCustomStyle
     }, () => {
-      window.localStorage.setItem('baseURL', this.state.baseURL)
-    })
-  }
+      if (this.state.isCustomStyle) {
+        console.log("head", this.state.isCustomStyle);
 
-  //转为domain
+        var url = "./styles/index.css";
+        var link = document.createElement("link");
+        link.setAttribute("rel", "stylesheet");
+        link.setAttribute("type", "text/css");
+        link.setAttribute("href", url);
+        this.setState({
+          linkDOM: link,
+        });
+        document.getElementsByTagName("head")[0].appendChild(link);
+        window.localStorage.setItem("lowcode_style", 'true');
+      } else {
+        let head = document.getElementsByTagName("head");
+        console.log("head", this.state.isCustomStyle);
+
+        if (head && head[0] && this.state.linkDOM) {
+          head[0].removeChild(this.state.linkDOM);
+        }
+
+        window.localStorage.setItem("lowcode_style", "false");
+      }
+    })
+  };
+  //crud模板
+  setTpl = () => {
+    let obj = this.changeBaseURLtoDomain(crudTpl);
+    this.setState({
+      json: obj
+    })
+    alert("模板生成成功");
+  };
+  /**
+   * 转为domain, 注： 这里内部是无法拦截axios的请求，所以这里直接对序列化的字符串做替换 
+   * 但是这种做法存在很容易出错，所以我们直接拦截ajax请求。
+   */
   changeBaseURLtoDomain = (obj: any) => {
-    let { baseURL } = this.state
-    if (!baseURL) return
-    let str = JSON.stringify(obj)
-    let res = str.replace(/\$\{baseURL\}/g, baseURL)
-    return JSON.parse(res)
-  }
+    return obj
+    // let { baseURL } = this.state;
+    // if (!baseURL) return;
+    // let str = JSON.stringify(obj);
+    // let res = str.replace(/\$\{baseURL\}/g, baseURL);
+    // return JSON.parse(res);
+  };
   //转为${baseURL}
   chengeDomaintoBaseURL = (obj: any) => {
-    let { baseURL } = this.state
-    if (!baseURL) return
-    let str = JSON.stringify(obj)
-    let urlReg = new RegExp(baseURL, 'g')
-    let res = str.replace(urlReg, '${baseURL}')
-    return JSON.parse(res)
-  }
+    return obj
+    // let { baseURL } = this.state;
+    // if (!baseURL) return;
+    // let str = JSON.stringify(obj);
+    // let urlReg = new RegExp(baseURL, "g");
+    // let res = str.replace(urlReg, "${baseURL}");
+    // return JSON.parse(res);
+  };
 
   render() {
     return (
       <>
-        <div className='tabbar'>
+        <div className="tabbar">
           <div>
-            <span className='ml20'>项目名：</span><input type="text" ref='itemName' placeholder={this.state.itemName} onChange={() => this.inputItemName()} />
-            <span className='ml20'>路由名：</span><input type="text" ref='routeName' placeholder={this.state.routeName} onChange={() => this.inputRouteName()} />
-            <span className='ml20'>设置baseURL：</span><input type="text" ref='baseURL' placeholder={this.state.baseURL} onChange={() => this.inputUrlName()} />
-            <button className='send-btn' onClick={this.getJSON}>获取页面</button>
+            <span className="ml20">项目名：</span>
+            <input
+              type="text"
+              ref="itemName"
+              className="input-info"
+              placeholder={this.state.itemName}
+              onChange={() => this.inputItemName()}
+            />
+            <span className="ml20">路由名：</span>
+            <input
+              type="text"
+              ref="routeName"
+              className="input-info"
+              placeholder={this.state.routeName}
+              onChange={() => this.inputRouteName()}
+            />
+            <span className="ml20">设置baseURL：</span>
+            <input
+              type="text"
+              ref="baseURL"
+              placeholder={this.state.baseURL}
+              onChange={() => this.inputUrlName()}
+            />
+            <button className="send-btn" onClick={this.getJSON}>
+              获取页面
+            </button>
           </div>
           <div>
-            <button className='send-btn' onClick={this.backHistoryJSON}>上一步</button>
-            <button className='send-btn' onClick={this.goHistoryJSON}>下一步</button>
-            <button className='send-btn' onClick={this.clearJSON}>重置</button>
-            <button className='send-btn' onClick={this.startPreview}>{this.state.preview ? '编辑' : '预览'}</button>
-            <button className='send-btn' onClick={this.sendJSON}>点击配置生效</button>
+            <button className="send-btn" onClick={this.setStyles}>
+              {this.state.isCustomStyle ? '默认样式' : '自定义样式'}
+            </button>
+            <button className="send-btn" onClick={this.setTpl}>
+              crud模板
+            </button>
+            <button className="send-btn" onClick={this.backHistoryJSON}>
+              上一步
+            </button>
+            <button className="send-btn" onClick={this.goHistoryJSON}>
+              下一步
+            </button>
+            <button className="send-btn" onClick={this.clearJSON}>
+              重置
+            </button>
+            <button className="send-btn" onClick={this.startPreview}>
+              {this.state.preview ? "编辑" : "预览"}
+            </button>
+            <button className="send-btn" onClick={this.sendJSON}>
+              点击配置生效
+            </button>
           </div>
         </div>
         <Editor
-          value={JSON.parse(JSON.stringify(this.state.json))}
+          value={this.state.json}
           onChange={this.handleChange}
           preview={this.state.preview}
         />
       </>
-    )
+    );
   }
 }
 
 export default App;
 
-
+```
+**调整：** 在编辑器中你无法拦截到内部amis的axios请求实例，所以在原来的处理中域名是直接json解析，不方便处理，现在通过ajax-hooks库直接拦截ajax请求，可以根据业务配置你的请求头、域名等。
+```sh
+ npm i ajax-hook
+```
+```js
+  import { proxy } from "ajax-hook"; 
+  
+  //拦截处理
+  proxy({
+    onRequest: (config, handler) => {
+      // config.headers = headers;  在这里处理通用请求头
+      config.url = this.state.baseURL + config.url; //处理url
+      handler.next(config);
+    },
+    onError: (err, handler) => {
+      console.log(err.type);
+      handler.next(err);
+    },
+    onResponse: (response, handler) => {
+      console.log(response.response);
+      handler.next(response);
+    },
+  });
 ```
 
 # 后端服务
@@ -607,4 +757,22 @@ export default {
 
 ---
 
-### 问题: 如果在集成中的样式需要做到统一，可以在 amis 包的 amis.css 修改，建议根据原有中后台系统配色修改，独立引入 html。如果存在高度定制化的组件，也是可以通过自定义组件的方式引入，同时配合编辑器。但要注意 amis 不太适合高度定制化、交互复杂的场景，这点要特别注意。
+### 问题1: 如果在集成中的样式需要做到统一？
+
+可以在 amis 包的 amis.css 修改，建议根据原有中后台系统配色修改，独立引入 html。在编辑器中针对不同的中后台项目，已经封装了可以通过按钮预览对应的样式的页面，在/public/styles可以配置修改。
+
+### 问题2: 如何自定义组件？
+
+如果存在定制化的组件，也是可以通过自定义组件的方式引入，在amis-editor官方文档有案例，但要注意 amis 不太适合高度定制化、交互复杂的场景，这点要特别注意。
+
+### 问题3： 如何处理权限？
+
+可以通过JSON的解析，找到对应的disabled字段，做对应的修改即可
+
+### 问题4： 哪里找到大量的模板？
+
+https://aisuda.bce.baidu.com/amis/examples/index
+
+### 问题5：真正如何托拉拽实现，前端不用敲代码！
+
+在实践中不能敲代码，那么真正用编辑器实现一个crud的功能，会遇到一些坑，如对应的返回的数据格式可以有适配器转换，查询功能和实际列表展示，一定要注意映射字段的处理。在批量处理中一定要后端必须传入id。列表中的一些字段其实也可以用映射，按需展示，修改等。

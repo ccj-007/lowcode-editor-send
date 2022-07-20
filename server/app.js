@@ -54,7 +54,6 @@ http.createServer(function (req, res) {
     });
   }
 
-  //本地模拟直接用client-admin.json
   if (req.method === 'POST' && req.url === '/api/getJSON') {
     let item = '';
     // 读取每次发送的数据

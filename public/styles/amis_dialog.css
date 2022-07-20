@@ -1,0 +1,9 @@
+/**
+  * amis 低代码 弹窗样式
+  */
+.cxd-Form-label {
+	font-weight: 500;
+	position: relative;
+	font-size: 14px;
+	color: rgba(0, 0, 0, 0.85);
+}
