@@ -1,4 +1,4 @@
-# 背景 (注: 2022.07.14 已更新最新官方版本)
+# 背景 (注: 2022.08.02 已更新最新官方版本)
 
 ### 你是否在做中后台项目中经常要重复做 crud 的业务逻辑，花费大量时间还时常有 bug 发生，但是现在只要几分钟就能让你快速连通前后端，拖拉拽实现后台业务逻辑。你就问香不香！
 
@@ -24,6 +24,7 @@
 8. 编辑器打包 (关闭 sourcemap 和 node 内存溢出问题处理， 15M 体积)
 9. 新增crud模板
 10. 新增自定义css样式模板
+11. 自定义组件示例
 
 # 如何使用
 
@@ -58,12 +59,17 @@
 
 ```js
 //src/App.tsx
-import React from "react";
+import * as React from "react";
 import { Editor } from "amis-editor";
 import "./App.css";
 import axios from "axios";
 import crudTpl from "./tpl/crud.json"; //json文件默认可以在src目录下导入
 import { proxy } from "ajax-hook";  //拦截amis内部ajax请求
+import { SchemaObject } from "amis/lib/Schema"; //json数据类型
+import { MyRendererPlugin } from "./MyRendererPlugin";
+import { registerEditorPlugin } from 'amis-editor';
+
+registerEditorPlugin(MyRendererPlugin); //自定义组件
 
 interface StateType {
   json: any;
@@ -78,7 +84,13 @@ interface StateType {
   linkDOM: HTMLElement | null
 }
 
+type InputType = React.RefObject<HTMLInputElement>
+
 class App extends React.Component<any, StateType> {
+  baseURLRef: InputType = React.createRef()
+  itemNameRef: InputType = React.createRef()
+  routeNameRef: InputType = React.createRef()
+
   constructor(props: any) {
     super(props);
     this.state = {
@@ -99,7 +111,7 @@ class App extends React.Component<any, StateType> {
     proxy({
       onRequest: (config, handler) => {
         // config.headers = headers;  在这里处理通用请求头
-        config.url = this.state.baseURL + config.url;  //处理域名
+        config.url = this.state.baseURL + config.url;
         console.log("config", config);
         handler.next(config);
       },
@@ -112,6 +124,7 @@ class App extends React.Component<any, StateType> {
         handler.next(response);
       },
     });
+
     //获取url query
     this.checkQuery();
     setTimeout(() => {
@@ -119,6 +132,9 @@ class App extends React.Component<any, StateType> {
     }, 0);
   }
 
+  /**
+   * 通过接口获取json对象
+   */
   getJSON = () => {
     let {
       routeName,
@@ -160,6 +176,9 @@ class App extends React.Component<any, StateType> {
       });
   };
 
+  /**
+  * 通过接口保存json对象
+  */
   sendJSON = () => {
     let {
       routeName,
@@ -204,10 +223,10 @@ class App extends React.Component<any, StateType> {
         alert("存入配置失败" + JSON.stringify(e));
       });
   };
+
   //监听lowcode的json改变
   handleChange = (e: any) => {
     console.log("更新了");
-
     this.setState(
       {
         json: e,
@@ -227,6 +246,7 @@ class App extends React.Component<any, StateType> {
       }
     );
   };
+
   //获取query
   checkQuery = () => {
     let itemName = this.getQueryString("itemName");
@@ -238,6 +258,7 @@ class App extends React.Component<any, StateType> {
       });
     }
   };
+
   // 获取查询字符串
   getQueryString = (name: string) => {
     var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
@@ -248,10 +269,11 @@ class App extends React.Component<any, StateType> {
       return null;
     }
   };
+
   //监听项目名输入
   inputItemName = () => {
-    //@ts-ignore
-    let val = this.refs.itemName.value;
+    if (!this.itemNameRef.current) return
+    let val = this.itemNameRef.current.value as string
     this.setState({
       itemName: val,
     });
@@ -259,13 +281,27 @@ class App extends React.Component<any, StateType> {
   };
   //监听路由输入
   inputRouteName = () => {
-    //@ts-ignore
-    let val = this.refs.routeName.value;
+    if (!this.routeNameRef.current) return
+    let val = this.routeNameRef.current.value as string
     this.setState({
       routeName: val,
     });
     window.localStorage.setItem("lowcode_routeName", val)
   };
+  //根路径
+  inputUrlName = () => {
+    if (!this.baseURLRef.current) return
+    let val = this.baseURLRef.current.value as string
+    this.setState(
+      {
+        baseURL: val,
+      },
+      () => {
+        window.localStorage.setItem("baseURL", this.state.baseURL);
+      }
+    );
+  };
+
   //开始预览
   startPreview = () => {
     this.setState({
@@ -278,6 +314,7 @@ class App extends React.Component<any, StateType> {
       json: {},
     });
   };
+
   //上一步
   backHistoryJSON = () => {
     let { step, historyList } = this.state;
@@ -316,20 +353,6 @@ class App extends React.Component<any, StateType> {
     }
   };
 
-  //根路径
-  inputUrlName = () => {
-    //@ts-ignore
-    let val = this.refs.baseURL.value;
-    //@ts-ignore
-    this.setState(
-      {
-        baseURL: val,
-      },
-      () => {
-        window.localStorage.setItem("baseURL", this.state.baseURL);
-      }
-    );
-  };
   //设置自定义样式
   setStyles = () => {
     this.setState({
@@ -362,12 +385,13 @@ class App extends React.Component<any, StateType> {
   };
   //crud模板
   setTpl = () => {
-    let obj = this.changeBaseURLtoDomain(crudTpl);
+    let obj = this.changeBaseURLtoDomain(crudTpl) as SchemaObject
     this.setState({
       json: obj
     })
     alert("模板生成成功");
   };
+
   /**
    * 转为domain, 注： 这里内部是无法拦截axios的请求，所以这里直接对序列化的字符串做替换 
    * 但是这种做法存在很容易出错，所以我们直接拦截ajax请求。
@@ -399,7 +423,7 @@ class App extends React.Component<any, StateType> {
             <span className="ml20">项目名：</span>
             <input
               type="text"
-              ref="itemName"
+              ref={this.itemNameRef}
               className="input-info"
               placeholder={this.state.itemName}
               onChange={() => this.inputItemName()}
@@ -407,7 +431,7 @@ class App extends React.Component<any, StateType> {
             <span className="ml20">路由名：</span>
             <input
               type="text"
-              ref="routeName"
+              ref={this.routeNameRef}
               className="input-info"
               placeholder={this.state.routeName}
               onChange={() => this.inputRouteName()}
@@ -415,7 +439,7 @@ class App extends React.Component<any, StateType> {
             <span className="ml20">设置baseURL：</span>
             <input
               type="text"
-              ref="baseURL"
+              ref={this.baseURLRef}
               placeholder={this.state.baseURL}
               onChange={() => this.inputUrlName()}
             />

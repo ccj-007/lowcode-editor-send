@@ -6,9 +6,9 @@ import crudTpl from "./tpl/crud.json"; //json文件默认可以在src目录下�
 import { proxy } from "ajax-hook";  //拦截amis内部ajax请求
 import { SchemaObject } from "amis/lib/Schema"; //json数据类型
 import { MyRendererPlugin } from "./MyRendererPlugin";
-import { registerEditorPlugin } from 'amis-editor';
+import { registerEditorPlugin } from 'amis-editor'; //自定义组件
 
-registerEditorPlugin(MyRendererPlugin);
+registerEditorPlugin(MyRendererPlugin); //注册组件
 
 interface StateType {
   json: any;
