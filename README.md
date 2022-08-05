@@ -22,9 +22,9 @@
 6. 通过路由及项目名配置查询
 7. 支持切换环境
 8. 编辑器打包 (关闭 sourcemap 和 node 内存溢出问题处理， 15M 体积)
-9. 新增crud模板
-10. 新增自定义css样式模板
-11. 自定义组件示例
+9. 新增 crud 模板
+10. 新增自定义 css 样式模板
+11. 自定义组件示例（已内置: 自定义标题组件），已解决 remark、类型错误导致无法渲染自定义组件的问题
 
 # 如何使用
 
@@ -393,7 +393,7 @@ class App extends React.Component<any, StateType> {
   };
 
   /**
-   * 转为domain, 注： 这里内部是无法拦截axios的请求，所以这里直接对序列化的字符串做替换 
+   * 转为domain, 注： 这里内部是无法拦截axios的请求，所以这里直接对序列化的字符串做替换
    * 但是这种做法存在很容易出错，所以我们直接拦截ajax请求。
    */
   changeBaseURLtoDomain = (obj: any) => {
@@ -484,29 +484,32 @@ class App extends React.Component<any, StateType> {
 export default App;
 
 ```
-**调整：** 在编辑器中你无法拦截到内部amis的axios请求实例，所以在原来的处理中域名是直接json解析，不方便处理，现在通过ajax-hooks库直接拦截ajax请求，可以根据业务配置你的请求头、域名等。
+
+**调整：** 在编辑器中你无法拦截到内部 amis 的 axios 请求实例，所以在原来的处理中域名是直接 json 解析，不方便处理，现在通过 ajax-hooks 库直接拦截 ajax 请求，可以根据业务配置你的请求头、域名等。
+
 ```sh
  npm i ajax-hook
 ```
+
 ```js
-  import { proxy } from "ajax-hook"; 
-  
-  //拦截处理
-  proxy({
-    onRequest: (config, handler) => {
-      // config.headers = headers;  在这里处理通用请求头
-      config.url = this.state.baseURL + config.url; //处理url
-      handler.next(config);
-    },
-    onError: (err, handler) => {
-      console.log(err.type);
-      handler.next(err);
-    },
-    onResponse: (response, handler) => {
-      console.log(response.response);
-      handler.next(response);
-    },
-  });
+import { proxy } from "ajax-hook";
+
+//拦截处理
+proxy({
+	onRequest: (config, handler) => {
+		// config.headers = headers;  在这里处理通用请求头
+		config.url = this.state.baseURL + config.url; //处理url
+		handler.next(config);
+	},
+	onError: (err, handler) => {
+		console.log(err.type);
+		handler.next(err);
+	},
+	onResponse: (response, handler) => {
+		console.log(response.response);
+		handler.next(response);
+	},
+});
 ```
 
 # 后端服务
@@ -781,22 +784,22 @@ export default {
 
 ---
 
-### 问题1: 如果在集成中的样式需要做到统一？
+### 问题 1: 如果在集成中的样式需要做到统一？
 
-可以在 amis 包的 amis.css 修改，建议根据原有中后台系统配色修改，独立引入 html。在编辑器中针对不同的中后台项目，已经封装了可以通过按钮预览对应的样式的页面，在/public/styles可以配置修改。
+可以在 amis 包的 amis.css 修改，建议根据原有中后台系统配色修改，独立引入 html。在编辑器中针对不同的中后台项目，已经封装了可以通过按钮预览对应的样式的页面，在/public/styles 可以配置修改。
 
-### 问题2: 如何自定义组件？
+### 问题 2: 如何自定义组件？
 
-如果存在定制化的组件，也是可以通过自定义组件的方式引入，在amis-editor官方文档有案例，但要注意 amis 不太适合高度定制化、交互复杂的场景，这点要特别注意。
+如果存在定制化的组件，也是可以通过自定义组件的方式引入，在 src/customComponents 里面已经定义了一个示例，后期会新增更多自定义组件。。
 
-### 问题3： 如何处理权限？
+### 问题 3： 如何处理权限？
 
-可以通过JSON的解析，找到对应的disabled字段，做对应的修改即可
+可以通过 JSON 的解析，找到对应的 disabled 字段，做对应的修改即可
 
-### 问题4： 哪里找到大量的模板？
+### 问题 4： 哪里找到大量的模板？
 
 https://aisuda.bce.baidu.com/amis/examples/index
 
-### 问题5：真正如何托拉拽实现，前端不用敲代码！
+### 问题 5：真正如何托拉拽实现，前端不用敲代码！
 
-在实践中不能敲代码，那么真正用编辑器实现一个crud的功能，会遇到一些坑，如对应的返回的数据格式可以有适配器转换，查询功能和实际列表展示，一定要注意映射字段的处理。在批量处理中一定要后端必须传入id。列表中的一些字段其实也可以用映射，按需展示，修改等。
+在实践中不能敲代码，那么真正用编辑器实现一个 crud 的功能，会遇到一些坑，如对应的返回的数据格式可以有适配器转换，查询功能和实际列表展示，一定要注意映射字段的处理。在批量处理中一定要后端必须传入 id。列表中的一些字段其实也可以用映射，按需展示，修改等。
