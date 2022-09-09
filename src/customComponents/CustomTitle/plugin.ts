@@ -16,14 +16,14 @@ export default class CustomTitlePlugin extends BasePlugin {
 	tags = ["自定义组件"];
 
 	// 图标
-	icon = "fa-solid fa-icons";
+	icon = "far fa-file-word";
 
 	// 拖入组件里面时的初始数据
 	scaffold = {
 		type: "custom-title",
 		api: {
 			method: "get",
-			url: "/yiyan/",
+			url: "",
 		},
 		label: "百度一下,你就知道",
 		showAbout: true,

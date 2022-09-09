@@ -5,11 +5,9 @@ import axios from "axios";
 import crudTpl from "./tpl/crud.json"; //json文件默认可以在src目录下导入
 import { proxy } from "ajax-hook"; //拦截amis内部ajax请求
 import { SchemaObject } from "amis/lib/Schema"; //json数据类型
-import { registerEditorPlugin } from "amis-editor";
-import CustomTitlePlugin from "./customComponents/CustomTitle/plugin"; //自定义组件配置面板
-import "./customComponents/CustomTitle/renderer"; //自定义组件内容
+import registerCompoments from "./customComponents/register";
 
-registerEditorPlugin(CustomTitlePlugin); //注册自定义组件
+registerCompoments(); //注册自定义组件
 
 interface StateType {
 	json: any;
