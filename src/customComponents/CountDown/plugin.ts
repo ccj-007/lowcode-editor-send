@@ -1,4 +1,8 @@
-import { BasePlugin, getSchemaTpl } from "amis-editor";
+/**
+ * @description 倒计时组件
+ */
+
+import { BasePlugin } from "amis-editor";
 export const compInfo = {
 	afterUpdateData: {},
 };
@@ -63,8 +67,8 @@ export default class CountDownPlugin extends BasePlugin {
 					controls: [
 						{
 							name: "target",
-							label: "Target",
-							type: "text",
+							label: "定义默认倒计时时间",
+							type: "input-number",
 						},
 					],
 				},
@@ -72,11 +76,7 @@ export default class CountDownPlugin extends BasePlugin {
 				{
 					title: "外观",
 					controls: [
-						{
-							name: "grid",
-							label: "grid",
-							type: "grid",
-						},
+						
 					],
 				},
 			],

@@ -1,3 +1,9 @@
+/**
+ * @description 自定义标题组件
+ * 
+ * 这里用了getSchemaTpl的做法，官方没有定义ts类型，无文档说明，所以不建议用这个方法
+ */
+
 import { BasePlugin, getSchemaTpl } from "amis-editor";
 
 export default class CustomTitlePlugin extends BasePlugin {
