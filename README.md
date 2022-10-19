@@ -1,4 +1,4 @@
-# 背景 (注: 2022.08.02 已更新最新官方版本)
+# 背景 (注: 2022.10.19 已更新最新官方版本)
 
 ### 你是否在做中后台项目中经常要重复做 crud 的业务逻辑，花费大量时间还时常有 bug 发生，但是现在只要几分钟就能让你快速连通前后端，拖拉拽实现后台业务逻辑。你就问香不香！
 
@@ -24,7 +24,38 @@
 8. 编辑器打包 (关闭 sourcemap 和 node 内存溢出问题处理， 15M 体积)
 9. 新增 crud 模板
 10. 新增自定义 css 样式模板
-11. 自定义组件示例（已内置: 自定义标题组件），已解决 remark、类型错误导致无法渲染自定义组件的问题
+11. 自定义组件示例，已解决 remark、类型错误导致无法渲染自定义组件的问题
+
+- 自定义组件：
+   - 自定义标题组件
+   - 倒计时组件
+
+### 自定义组件需要注意什么
+
+- 在node_modules/amis/lib/Schema.d.ts里面定义了tab面板配置的类型，你可以根据此完成自定义组件的大部分工作
+```js
+// src/customComponents/CountDown/plugin.ts
+panelBody = [
+		{
+			type: "tabs",
+			tabsMode: "line",
+			className: "m-t-n-xs",
+			contentClassName: "no-border p-l-none p-r-none",
+			tabs: [
+				{
+					title: "常规",
+					controls: [
+						{
+							name: "target",
+							label: "定义默认倒计时时间",
+							type: "input-number",  //这里的类型需要看源码的类型定义, 根据需要配置
+						},
+					],
+				},
+			],
+		},
+	];
+```
 
 # 如何使用
 

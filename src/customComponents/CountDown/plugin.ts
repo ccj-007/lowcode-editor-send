@@ -76,7 +76,11 @@ export default class CountDownPlugin extends BasePlugin {
 				{
 					title: "外观",
 					controls: [
-						
+            {
+							name: "CSS类名",
+							label: "CSS类名",
+							type: "editor",
+						},
 					],
 				},
 			],
