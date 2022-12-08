@@ -404,7 +404,7 @@ class App extends React.Component<any, StateType> {
 							{this.state.preview ? "编辑" : "预览"}
 						</button>
 						<button className="send-btn" onClick={this.sendJSON}>
-							点击配置生效
+							保存
 						</button>
 					</div>
 				</div>
