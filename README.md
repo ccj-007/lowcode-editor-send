@@ -66,10 +66,9 @@ panelBody = [
 
 ```
   npm i           //安装依赖
-  npm run start   //通过devserve启动前端页面
+  npm run start   //通过devserve启动前端页面, 默认3000端口
   npm run server  //启动node服务，默认3001端口
   npm run build   //打包（某些情况可能会存在内存溢出问题）
-
 ```
 
 # 注意
@@ -765,7 +764,25 @@ export const getLowcodePage = (DOM, options = {}) => {
 ```
 
 ### 3. 做跨域代理
+1. 在create-react-app中跨域
+```js
+//package.json
+{
+  "proxy":"http://localhost:3001", //你要跨域的地址，默认会匹配替换/api
+}
 
+//App.tsx
+componentDidMount() {
+		proxy({
+			onRequest: (config, handler) => {
+        //取消根路径配置即可跨域
+				// config.url = this.state.baseURL + config.url; 
+			},
+		});
+	}
+```
+
+2. 在vue中跨域
 ```js
   //vue.config.js
   devServer: {

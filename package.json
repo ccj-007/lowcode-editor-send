@@ -1,4 +1,5 @@
 {
+  "proxy":"http://localhost:3001",
   "name": "lowcode-editor-send",
   "version": "0.1.0",
   "private": true,
