@@ -297,7 +297,7 @@ class App extends React.Component<any, StateType> {
 				if (this.state.isCustomStyle) {
 					console.log("head", this.state.isCustomStyle);
 
-					var url = "./styles/index.css";
+					var url = ("./styles/index.css");
 					var link = document.createElement("link");
 					link.setAttribute("rel", "stylesheet");
 					link.setAttribute("type", "text/css");
@@ -312,6 +312,8 @@ class App extends React.Component<any, StateType> {
 					console.log("head", this.state.isCustomStyle);
 
 					if (head && head[0] && this.state.linkDOM) {
+            console.log("11111111111111111111111111111", this.state.linkDOM);
+            
 						head[0].removeChild(this.state.linkDOM);
 					}
 

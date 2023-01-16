@@ -9,7 +9,7 @@ const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 const InlineChunkHtmlPlugin = require('react-dev-utils/InlineChunkHtmlPlugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+// const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
 const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
 const WorkboxWebpackPlugin = require('workbox-webpack-plugin');
@@ -200,7 +200,10 @@ module.exports = function (webpackEnv) {
       : isEnvDevelopment && 'cheap-module-source-map',
     // These are the "entry points" to our application.
     // This means they will be the "root" imports that are included in JS bundle.
-    entry: paths.appIndexJs,
+    entry: [
+      isEnvDevelopment && 'react-hot-loader/patch',
+      paths.appIndexJs,
+    ],
     output: {
       // The build folder.
       path: paths.appBuild,
@@ -289,7 +292,7 @@ module.exports = function (webpackEnv) {
           },
         }),
         // This is only used in production mode
-        new CssMinimizerPlugin(),
+        // new CssMinimizerPlugin(),
       ],
     },
     resolve: {
@@ -422,9 +425,10 @@ module.exports = function (webpackEnv) {
                 ],
 
                 plugins: [
-                  isEnvDevelopment &&
-                  shouldUseReactRefresh &&
-                  require.resolve('react-refresh/babel'),
+                  isEnvDevelopment && 'react-hot-loader/babel',
+                  // isEnvDevelopment &&
+                  // shouldUseReactRefresh &&
+                  // require.resolve('react-refresh/babel'),
                 ].filter(Boolean),
                 // This is a feature of `babel-loader` for webpack (not Babel itself).
                 // It enables caching results in ./node_modules/.cache/babel-loader/
@@ -748,6 +752,7 @@ module.exports = function (webpackEnv) {
           },
         },
       }),
+      new webpack.HotModuleReplacementPlugin(),
     ].filter(Boolean),
     // Turn off performance processing because we utilize
     // our own hints via the FileSizeReporter

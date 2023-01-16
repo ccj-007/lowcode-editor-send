@@ -1,4 +1,4 @@
-# 背景 (注: 2022.10.19 已更新最新官方版本)
+# 背景
 
 ### 你是否在做中后台项目中经常要重复做 crud 的业务逻辑，花费大量时间还时常有 bug 发生，但是现在只要几分钟就能让你快速连通前后端，拖拉拽实现后台业务逻辑。你就问香不香！
 
@@ -6,13 +6,19 @@
 
 ### 🚀 ✈️ 🚁 基于 amis-editor（React + TS），通过封装 json 数据上报、配置、自定义组件等，实现低代码管理后台实时更新，无需手动写 json 配置。如果你要在 Vue 中使用当然也可以。
 
-## 👍 简单一句话： 你不用敲代码了！！
+<br />
 
-## ⭐⭐⭐ 觉得不错点个 star 再走 ！⭐⭐⭐
+### 👍 简单一句话： 你不用敲代码了！！
+
+<br />
+
+### ⭐⭐⭐ 觉得不错点个 star 再走 ！⭐⭐⭐
+
+<br />
 
 ![](https://pic.zzss.com/manager/attach/common/20220629/784994.png)
 
-### 在原框架上实现了哪些功能
+# 功能
 
 1. 支持 url 路由跳转对应的配置页面
 2. 支持历史记录修改
@@ -29,37 +35,73 @@
 - 自定义组件：
    - 自定义标题组件
    - 倒计时组件
+   - 热力图组件
 
 ### 修复了哪些问题
 
 1. 修复map文件丢失的问题，默认启动会有警告
 2. 在本地调试需要手动刷新，现在支持webpack-devserver-plugin的热更新
 
-### 自定义组件需要注意什么
+### 如何自定义组件
 
-- 在node_modules/amis/lib/Schema.d.ts里面定义了tab面板配置的类型，你可以根据此完成自定义组件的大部分工作
+1. 请在项目src文件夹下的customComponents组件中根据已有示例配置即可，在renderer做jsx的渲染工作，plugin做组件的基础配置
+2. 如何存在不确定的配置，可以在如下类型文件中查找对应api
+- 在node_modules/amis/lib/Schema.d.ts里面定义了组件的类型
+- 在node_modules/amis-editor/src/component/schemaTpl.tsx 定了tab面板配置的类型
+3. getSchemaTpl返回的事先定义的多组件的模板，panelBody配置可以获取物料的基础组件。所以通常我们会将getSchemaTpl和panelBody混用
+  
 ```js
 // src/customComponents/CountDown/plugin.ts
-panelBody = [
-		{
-			type: "tabs",
-			tabsMode: "line",
-			className: "m-t-n-xs",
-			contentClassName: "no-border p-l-none p-r-none",
-			tabs: [
+  panelBodyCreator(context: any) {
+		return [
+			getSchemaTpl("tabs", [
 				{
 					title: "常规",
-					controls: [
-						{
-							name: "target",
+					body: [
+						getSchemaTpl("input-number", {
+              name: "count",
 							label: "定义默认倒计时时间",
-							type: "input-number",  //这里的类型需要看源码的类型定义, 根据需要配置
-						},
+							type: "input-number",
+              onChange: (e: any) => {
+                console.log("组件状态", context); 
+                console.log("value值", e); 
+              }
+						}),
+            getSchemaTpl("minLength"),
+            getSchemaTpl("checkbox", {
+              name: "isLoop",
+							label: "是否循环",
+							type: "checkbox",
+              trueValue: true,
+              falseValue: false,
+						}),
 					],
 				},
-			],
-		},
-	];
+        {
+					title: "接口",
+					body: [
+						getSchemaTpl("switch", {
+							name: "initFetch",
+							label: "初始是否拉取",
+						}),
+						getSchemaTpl("api", {
+							name: "api",
+							label: "接口地址",
+							description:
+								" 接口存在跨域问题，需要后端代理，请在此填写接口地址",
+						}),
+					],
+				},
+				{
+					title: "外观",
+					body: [
+            getSchemaTpl("className"),
+          ],
+        },
+			]),
+		];
+	}
+}
 ```
 
 # 如何使用
@@ -856,3 +898,8 @@ https://aisuda.bce.baidu.com/amis/examples/index
 ### 问题 5：真正如何托拉拽实现，前端不用敲代码！
 
 在实践中不能敲代码，那么真正用编辑器实现一个 crud 的功能，会遇到一些坑，如对应的返回的数据格式可以有适配器转换，查询功能和实际列表展示，一定要注意映射字段的处理。在批量处理中一定要后端必须传入 id。列表中的一些字段其实也可以用映射，按需展示，修改等。
+
+## 📝 License
+
+Copyright © 2022 [ccj-007](https://github.com/ccj-007).<br />
+This project is [MIT](https://zh.wikipedia.org/zh-cn/MIT%E8%A8%B1%E5%8F%AF%E8%AD%89) licensed.

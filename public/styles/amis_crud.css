@@ -1,7 +1,3 @@
-/**
-  * amis 低代码 表格样式
-  */
-/* 表格搜索框 */
 .cxd-DropDown {
 	display: none;
 }
@@ -34,7 +30,6 @@
 		text-align: left;
 	}
 }
-/* 表格多选 */
 .cxd-Table-table > thead > tr > th.cxd-Table-checkCell,
 .cxd-Table-table > tbody > tr > td.cxd-Table-checkCell {
 	border-right: 0;
@@ -50,7 +45,6 @@
 .cxd-Table-table > tbody > tr > td {
 	border: 1px solid #e8e9eb;
 }
-/* 表格 */
 .cxd-Table-table > tbody > .cxd-Table-tr--even {
 	background: #fafafa;
 }
@@ -61,11 +55,9 @@
 .cxd-Table-table > tbody > tr.is-hovered {
 	background: #f5f7fa;
 }
-/* 表头 */
 .cxd-TableCell--title {
 	font-weight: 500;
 }
-/* 表格操作按钮的禁用 */
 .cxd-OperationField > .cxd-Button--link {
 	padding: 0 1rem;
 }

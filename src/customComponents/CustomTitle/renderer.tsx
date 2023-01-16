@@ -38,8 +38,7 @@ export default class CustomTitleRenderer extends React.Component {
     const { env, api, sentence } = this.props;
     const _api = normalizeApi(api);
     this.setState({ loading: true });
-    env
-      .fetcher({ ..._api, data: { c: val || sentence } })
+    env.fetcher({ ..._api, data: { c: val || sentence } })
       //@ts-ignore
       .then(({ data: any }) => {
         //@ts-ignore

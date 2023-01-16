@@ -3,7 +3,6 @@
 @import "./amis_crud.css";
 @import "./amis_dialog.css";
 
-/* 测试使用样式 */
 .cxd-Page-body {
   background: red !important;
 }
