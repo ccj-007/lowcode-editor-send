@@ -89,11 +89,9 @@ export default class HeatMapPlugin extends BasePlugin {
               const { manager } = this;
               const { store } = manager;
               const node = store.getNodeById(id);
-              console.log((e));
-              
-							//@ts-ignore
-              const component = node.getComponent();
-              // component.getYiyan(val);
+              console.log(node, e);
+              // const component = node.getComponent();
+              // component.getCustomApi(val);
             }  
           },
         ],

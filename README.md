@@ -1,18 +1,14 @@
-# 背景
+# 背景(2023.4.18已更新最新版本)
 
 ### 你是否在做中后台项目中经常要重复做 crud 的业务逻辑，花费大量时间还时常有 bug 发生，但是现在只要几分钟就能让你快速连通前后端，拖拉拽实现后台业务逻辑。你就问香不香！
 
 # 关于
 
-### 🚀 ✈️ 🚁 基于 amis-editor（React + TS），通过封装 json 数据上报、配置、自定义组件等，实现低代码管理后台实时更新，无需手动写 json 配置。如果你要在 Vue 中使用当然也可以。
+### 🚀 ✈️ 🚁 基于 amis-editor（React + TS），通过封装 json 数据上报、配置、自定义组件等，实现低代码管理后台实时更新，无需手动写 json 配置。如果你要在 Vue 中使用当然也可以。👍 简单一句话： 你不用敲代码了！！
 
 <br />
 
-### 👍 简单一句话： 你不用敲代码了！！
-
-<br />
-
-### ⭐⭐⭐ 觉得不错点个 star 再走 ！⭐⭐⭐
+###  觉得不错点个 star ⭐ 再走 ！
 
 <br />
 
@@ -51,55 +47,67 @@
 3. getSchemaTpl返回的事先定义的多组件的模板，panelBody配置可以获取物料的基础组件。所以通常我们会将getSchemaTpl和panelBody混用
   
 ```js
-// src/customComponents/CountDown/plugin.ts
+// src/customComponents/HeatMap/plugin.ts
+{
+  //...
   panelBodyCreator(context: any) {
+    let panelConfig = getSchemaTpl("tabs", [
+      {
+        title: "接口",
+        body: [
+          getSchemaTpl("switch", {
+            name: "initFetch",
+            label: "初始是否拉取",
+          }),
+          getSchemaTpl("api", {
+            name: "api",
+            label: "接口地址",
+            description:
+              " 接口存在跨域问题，需要后端代理，请在此填写接口地址",
+          }),
+        ],
+      },
+    ])
+    let panelBody = [
+      {
+        title: "常规",
+        controls: [
+          {
+            name: "preview",
+            label: "是否预览",
+            type: "checkbox",  
+          },
+          {
+            name: "json_heatmap",
+            label: "热力图的json配置",
+            type: "json-editor",
+            onChange: (e: any) => {
+              const id = context.id;
+              const { manager } = this;
+              const { store } = manager;
+              const node = store.getNodeById(id);
+              console.log((e));
+							//在配置的事件中可以控制组件的渲染 ！
+              const component = node.getComponent();
+              // component.api(val);
+            }  
+          },
+        ],
+      },
+      {
+        title: "外观",
+        body: [getSchemaTpl("className"),
+        getSchemaTpl("icon"),
+        getSchemaTpl("combo-container"),
+        getSchemaTpl("hidden"),
+        getSchemaTpl("switchDefaultValue"),
+      ],
+      },
+    ]
+    panelConfig.tabs.unshift(...panelBody)
 		return [
-			getSchemaTpl("tabs", [
-				{
-					title: "常规",
-					body: [
-						getSchemaTpl("input-number", {
-              name: "count",
-							label: "定义默认倒计时时间",
-							type: "input-number",
-              onChange: (e: any) => {
-                console.log("组件状态", context); 
-                console.log("value值", e); 
-              }
-						}),
-            getSchemaTpl("minLength"),
-            getSchemaTpl("checkbox", {
-              name: "isLoop",
-							label: "是否循环",
-							type: "checkbox",
-              trueValue: true,
-              falseValue: false,
-						}),
-					],
-				},
-        {
-					title: "接口",
-					body: [
-						getSchemaTpl("switch", {
-							name: "initFetch",
-							label: "初始是否拉取",
-						}),
-						getSchemaTpl("api", {
-							name: "api",
-							label: "接口地址",
-							description:
-								" 接口存在跨域问题，需要后端代理，请在此填写接口地址",
-						}),
-					],
-				},
-				{
-					title: "外观",
-					body: [
-            getSchemaTpl("className"),
-          ],
-        },
-			]),
-		];
+			panelConfig
+		]
 	}
 }
 ```
@@ -108,7 +116,7 @@
 
 ```
   npm i           //安装依赖
-  npm run start   //通过devserve启动前端页面, 默认3000端口
+  npm run start   //通过devaServe启动前端页面, 默认3000端口
   npm run server  //启动node服务，默认3001端口
   npm run build   //打包（某些情况可能会存在内存溢出问题）
 ```

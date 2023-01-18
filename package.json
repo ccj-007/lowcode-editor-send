@@ -12,8 +12,8 @@
     "@types/react": "^16.8.4",
     "@types/react-dom": "^18.0.5",
     "ajax-hook": "^2.1.3",
-    "amis": "^2.5.1",
-    "amis-editor": "^5.2.0",
+    "amis": "^2.6.0",
+    "amis-editor": "^5.2.3",
     "axios": "^0.27.2",
     "babel-jest": "^27.4.2",
     "babel-loader": "^8.2.3",
@@ -75,7 +75,10 @@
     "extends": [
       "react-app",
       "react-app/jest"
-    ]
+    ],
+    "rules": {
+      "no-eval": "off"
+    }
   },
   "homepage": "./",
   "browserslist": {

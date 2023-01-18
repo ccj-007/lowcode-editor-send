@@ -1,6 +1,5 @@
 import React from "react";
 import { Renderer, RendererProps } from "amis";
-import styles from './index.module.css'
 import { normalizeApi } from "amis-core";
 import Heatmap from 'heatmap.js'
 
@@ -63,6 +62,7 @@ export default class HeatMapRenderer extends React.Component <
   renderHeatMap() {
       let json = {radius: 4}
       if(this.state.json) {
+        // eslint-disable-next-line
         eval('json =' + this.state.json)
       }
       let r = json && json.radius ? json.radius : 70

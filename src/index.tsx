@@ -10,7 +10,7 @@ import "amis/lib/helper.css";
 import "@fortawesome/fontawesome-free/css/all.css";
 import "@fortawesome/fontawesome-free/css/v4-shims.css";
 
-import "../node_modules/amis-editor/dist/style.css";
+import "../node_modules/amis-editor-core/lib/style.css";
 
 // ReactDOM.render(<App />, document.getElementById("root"));
 hot(App);
