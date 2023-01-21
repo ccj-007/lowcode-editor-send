@@ -15,7 +15,7 @@ interface HeatMapState {
 
 let preCompInfo: any = null
 
-export default class HeatMapRenderer extends React.Component <
+export default class CustomHeatmapRenderer extends React.Component <
   MyRendererProps,
   HeatMapState
 > {
@@ -49,14 +49,14 @@ export default class HeatMapRenderer extends React.Component <
       })
   }
   getInstance = () => {
-    var heatmapInstance = Heatmap.create({
+    if(this.state.heatmapInstance) return
+    let heatmapInstance = Heatmap.create({
       //@ts-ignore
       container: this.heatDOM.current
     });
     this.setState({
       heatmapInstance
     }, () => {
-      this.renderHeatMap()
     })
   }
   renderHeatMap() {
@@ -96,12 +96,11 @@ export default class HeatMapRenderer extends React.Component <
 
   shouldComponentUpdate(nextProps: any, nextState: any) {
     if((preCompInfo) !== (nextProps)) {
-      console.log("更新的组件信息", nextProps.json_heatmap);
       preCompInfo = nextProps
       this.setState({
         compInfo: nextProps,
-        json: nextProps.json_heatmap ,
-        preview: !!nextProps.preview ,
+        json: nextProps.json_heatmap || null,
+        preview: !!nextProps.preview || true,
         className: nextProps.className || '',
       }, () => {
         this.renderHeatMap()
@@ -115,15 +114,11 @@ export default class HeatMapRenderer extends React.Component <
   }
   render() {
     return (
-      <div>
-        {
-           <div className={`${this.state.className}`} ref={this.heatDOM}  style={{width: '300px', height: '300px', display:  this.state.preview ? 'block' : 'none'}} >
-          </div> 
-        }
-      </div>  
+        <div className={`${this.state.className}`} ref={this.heatDOM}  style={{width: '300px', height: '300px', display:  this.state.preview ? 'block' : 'none'}}  >
+        </div> 
     )
   }
 }
 
 //@ts-ignore
-Renderer({ type: "heat-map", autoVar: true })(HeatMapRenderer);
+Renderer({ type: "custom-heatmap", autoVar: true })(CustomHeatmapRenderer);

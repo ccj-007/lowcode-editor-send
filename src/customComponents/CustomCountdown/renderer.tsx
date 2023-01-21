@@ -19,7 +19,7 @@ interface CountDownState {
 let timer: null | NodeJS.Timeout = null;
 let preCompInfo: null = null 
 
-export default class CountDownRenderer extends React.Component <
+export default class CustomCountdownRenderer extends React.Component <
   MyRendererProps,
   CountDownState
 > {
@@ -57,7 +57,6 @@ export default class CountDownRenderer extends React.Component <
 
   shouldComponentUpdate(nextProps: any, nextState: any) {
     if((preCompInfo) !== (nextProps)) {
-      console.log("更新的组件信息", nextProps);
       preCompInfo = nextProps
       this.setState({
         compInfo: nextProps,
@@ -114,11 +113,15 @@ export default class CountDownRenderer extends React.Component <
 
   render() {
     return (
-      this.props.$$hidden ? <></> :
-      <div className={`${styles['count'] + ' ' + this.state.className}`}>{this.state.count}</div>
+      <>
+       {
+         this.props.$$hidden ? <></> :
+         <div className={`${styles['count'] + ' ' + this.state.className}`}>{this.state.count}</div>
+       }
+      </>
     )
   }
 }
 
 //@ts-ignore
-Renderer({ type: "count-down", autoVar: true })(CountDownRenderer);
+Renderer({ type: "custom-countdown", autoVar: true })(CustomCountdownRenderer);

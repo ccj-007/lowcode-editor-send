@@ -50,7 +50,6 @@ export default class CustomTitleRenderer extends React.Component {
   }
 
   getYiyan(val: any) {
-    console.log('选择的值', val);
     this.setState({
       data: { ...this.state.data, type: val }
     })

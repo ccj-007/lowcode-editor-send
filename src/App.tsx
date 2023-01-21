@@ -2,10 +2,25 @@ import * as React from "react";
 import { Editor } from "amis-editor";
 import "./App.css";
 import axios from "axios";
-import crudTpl from "./tpl/crud.json"; //json文件默认可以在src目录下导入
+import crudTpl from "./tpl/crud.json"; 
 import { proxy } from "ajax-hook"; //拦截amis内部ajax请求
-import { SchemaObject } from "amis/lib/Schema"; //json数据类型
+import type { SchemaObject } from "amis/lib/Schema"; 
 import registerCompoments from "./customComponents/register";
+import {Select} from 'amis';
+import {currentLocale} from 'i18n-runtime';
+import {observer} from 'mobx-react';
+
+const editorLanguages = [
+  {
+    label: '简体中文',
+    value: 'zh-CN'
+  },
+  {
+    label: 'English',
+    value: 'en-US'
+  }
+];
+const curLanguage = currentLocale()
 
 registerCompoments(); //注册自定义组件
 
@@ -24,6 +39,7 @@ interface StateType {
 
 type InputType = React.RefObject<HTMLInputElement>;
 
+@observer
 class App extends React.Component<any, StateType> {
 	baseURLRef: InputType = React.createRef();
 	itemNameRef: InputType = React.createRef();
@@ -47,20 +63,18 @@ class App extends React.Component<any, StateType> {
 		};
 	}
 	componentDidMount() {
+    console.info('mobx全局数据', this.props)
 		//拦截处理
 		proxy({
 			onRequest: (config, handler) => {
 				// config.headers = headers;  在这里处理通用请求头
 				config.url = this.state.baseURL + config.url;
-				console.log("config", config);
 				handler.next(config);
 			},
 			onError: (err, handler) => {
-				console.log(err.type);
 				handler.next(err);
 			},
 			onResponse: (response, handler) => {
-				console.log(response.response);
 				handler.next(response);
 			},
 		});
@@ -118,7 +132,6 @@ class App extends React.Component<any, StateType> {
 	 */
 	sendJSON = () => {
 		let { routeName, itemName } = this.state;
-		console.log(this.state.json);
 		if (!routeName || !itemName) {
 			alert("请传入必要参数");
 			return;
@@ -160,7 +173,6 @@ class App extends React.Component<any, StateType> {
 
 	//监听lowcode的json改变
 	handleChange = (e: any) => {
-		console.log("更新了");
 		this.setState(
 			{
 				json: e,
@@ -176,7 +188,6 @@ class App extends React.Component<any, StateType> {
 						step: this.state.step - 1,
 					});
 				}
-				console.log("change", this.state.historyList);
 			}
 		);
 	};
@@ -309,10 +320,8 @@ class App extends React.Component<any, StateType> {
 					window.localStorage.setItem("lowcode_style", "true");
 				} else {
 					let head = document.getElementsByTagName("head");
-					console.log("head", this.state.isCustomStyle);
 
 					if (head && head[0] && this.state.linkDOM) {
-            console.log("11111111111111111111111111111", this.state.linkDOM);
             
 						head[0].removeChild(this.state.linkDOM);
 					}
@@ -353,8 +362,13 @@ class App extends React.Component<any, StateType> {
 		// let res = str.replace(urlReg, "${baseURL}");
 		// return JSON.parse(res);
 	};
+   changeLocale(value: string) {
+    localStorage.setItem('suda-i18n-locale', value);
+    window.location.reload();
+  }
 
 	render() {
+    let {isMobile, changeMobile} = this.props.store
 		return (
 			<>
 				<div className="tabbar">
@@ -402,6 +416,18 @@ class App extends React.Component<any, StateType> {
 						<button className="send-btn" onClick={this.clearJSON}>
 							重置
 						</button>
+            <Select
+              className='margin-left-space'
+              options={editorLanguages}
+              value={curLanguage}
+              clearable={false}
+              onChange={(e: any) => this.changeLocale(e.value)}
+            />
+            <button className="send-btn" onClick={() => {
+              changeMobile(isMobile)
+            }}>
+            {isMobile ? '切换PC' : '切换Mobile'}
+						</button>
 						<button className="send-btn" onClick={this.startPreview}>
 							{this.state.preview ? "编辑" : "预览"}
 						</button>
@@ -411,9 +437,23 @@ class App extends React.Component<any, StateType> {
 					</div>
 				</div>
 				<Editor
+          theme={'cxd'}
 					value={this.state.json}
 					onChange={this.handleChange}
 					preview={this.state.preview}
+          onPreview={() => {}}
+          onSave={() => {}}
+          $schemaUrl={`${window.location.protocol}//${window.location.host}/schema.json`}
+          isMobile={this.props.store.isMobile}
+          iframeUrl={'/amis-editor-demo' + '/editor.html'}
+          showCustomRenderersPanel={true}
+          //可以定义全局的状态、如全局组件、请求等
+          // amisEnv={{
+          //   fetcher: store.fetcher,
+          //   notify: store.notify,
+          //   alert: store.alert,
+          //   copy: store.copy
+          // }}
 				/>
 			</>
 		);
