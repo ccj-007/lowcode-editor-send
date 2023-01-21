@@ -14,7 +14,7 @@
 
 <br />
 
-![](https://pic.zzss.com/manager/attach/common/20220629/784994.png)
+![](./introduce.png)
 
 # 功能
 
@@ -907,8 +907,3 @@ https://aisuda.bce.baidu.com/amis/examples/index
 ### 问题 5：真正如何托拉拽实现，前端不用敲代码！
 
 在实践中不能敲代码，那么真正用编辑器实现一个 crud 的功能，会遇到一些坑，如对应的返回的数据格式可以有适配器转换，查询功能和实际列表展示，一定要注意映射字段的处理。在批量处理中一定要后端必须传入 id。列表中的一些字段其实也可以用映射，按需展示，修改等。
-
-## 📝 License
-
-Copyright © 2022 [ccj-007](https://github.com/ccj-007).<br />
-This project is [MIT](https://zh.wikipedia.org/zh-cn/MIT%E8%A8%B1%E5%8F%AF%E8%AD%89) licensed.
