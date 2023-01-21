@@ -14,7 +14,7 @@
 
 <br />
 
-![](./introduce.png)
+<img src='./introduce.png' />
 
 # 功能
 
