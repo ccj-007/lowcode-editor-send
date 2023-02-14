@@ -6,13 +6,19 @@
 
 ### 🚀 ✈️ 🚁 基于 amis-editor（React + TS），通过封装 json 数据上报、配置、自定义组件等，实现低代码管理后台实时更新，无需手动写 json 配置。如果你要在 Vue 中使用当然也可以。👍 简单一句话： 你不用敲代码了！！
 
-<br />
+# 原理
+
+抽空实现了最简单版本的低代码框架，方便你快速理解
+
+Easy-Lowcode https://github.com/ccj-007/easy-lowcode
+
+# 沟通
 
 ####  觉得不错点个 star ⭐ 再走 ！
 
 #### QQ交流群 565896756
 
-<br />
+# 预览
 
 <img src='./introduce.png' />
 
