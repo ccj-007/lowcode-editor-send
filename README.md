@@ -20,7 +20,7 @@ Easy-Lowcode https://github.com/ccj-007/easy-lowcode
 
 # 预览
 
-<img src='./introduce.png' />
+![lowcode-editor-send](http://rreppket2.hn-bkt.clouddn.com/introduce.png)
 
 # 开始
 
