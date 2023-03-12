@@ -1,5 +1,4 @@
-import React from "react";
-import { Renderer } from "amis";
+import * as React from "react";
 import { normalizeApi } from "amis-core";
 import styles from './index.module.css'
 
@@ -58,7 +57,7 @@ export default class CustomTitleRenderer extends React.Component {
     return React.createElement(
       "div",
       { className: styles['content'] },
-      <div>低代码（Low Code）是一种可视化的应用开发方法，用较少的代码、以较快的速度来交付应用程序，将程序员不想开发的代码做到自动化，称之为低代码。低代码是一组数字技术工具平台，基于图形化拖拽、参数化配置等更为高效的方式，实现快速构建、数据编排、连接生态、中台服务。通过少量代码或不用代码实现数字化转型中的场景应用创新。</div>
+      '低代码（Low Code）是一种可视化的应用开发方法，用较少的代码、以较快的速度来交付应用程序，将程序员不想开发的代码做到自动化，称之为低代码。低代码是一组数字技术工具平台，基于图形化拖拽、参数化配置等更为高效的方式，实现快速构建、数据编排、连接生态、中台服务。通过少量代码或不用代码实现数字化转型中的场景应用创新。'
     );
   }
 
@@ -91,5 +90,3 @@ export default class CustomTitleRenderer extends React.Component {
   }
 }
 
-//@ts-ignore
-Renderer({ type: "custom-title", autoVar: true })(CustomTitleRenderer);

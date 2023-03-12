@@ -1,5 +1,5 @@
-import React from "react";
-import { Renderer, RendererProps } from "amis";
+import * as React from "react";
+import { RendererProps } from "amis";
 import styles from './index.module.css'
 import { normalizeApi } from "amis-core";
 
@@ -17,9 +17,9 @@ interface CountDownState {
 }
 
 let timer: null | NodeJS.Timeout = null;
-let preCompInfo: null = null 
+let preCompInfo: null = null
 
-export default class CustomCountdownRenderer extends React.Component <
+export default class CustomCountdownRenderer extends React.Component<
   MyRendererProps,
   CountDownState
 > {
@@ -40,7 +40,7 @@ export default class CustomCountdownRenderer extends React.Component <
 
   componentDidMount() {
     this.startCountTime()
-    if(this.props.initFetch) {
+    if (this.props.initFetch) {
       this.getCustomApi();
     }
   }
@@ -56,7 +56,7 @@ export default class CustomCountdownRenderer extends React.Component <
   }
 
   shouldComponentUpdate(nextProps: any, nextState: any) {
-    if((preCompInfo) !== (nextProps)) {
+    if ((preCompInfo) !== (nextProps)) {
       preCompInfo = nextProps
       this.setState({
         compInfo: nextProps,
@@ -68,22 +68,22 @@ export default class CustomCountdownRenderer extends React.Component <
         className: nextProps.className || '',
         isDel: !!nextProps.isDel,
       })
-      
+
       return true
     }
-    if((this.state) !== (nextState)) {
+    if ((this.state) !== (nextState)) {
       return true
     }
     return false
   }
 
   updateCount() {
-    const {isLoop, count, step, minimum, maximum, isDel} = this.state
-    let newCount 
-    if(isDel) {
+    const { isLoop, count, step, minimum, maximum, isDel } = this.state
+    let newCount
+    if (isDel) {
       newCount = count - step;
       if (newCount < minimum && timer) {
-        if(isLoop) {
+        if (isLoop) {
           this.setState({ count: this.props.count });
         } else {
           clearInterval(timer);
@@ -94,7 +94,7 @@ export default class CustomCountdownRenderer extends React.Component <
     } else {
       newCount = count + step;
       if (newCount > maximum && timer) {
-        if(isLoop) {
+        if (isLoop) {
           this.setState({ count: 0 });
         } else {
           clearInterval(timer);
@@ -107,21 +107,18 @@ export default class CustomCountdownRenderer extends React.Component <
 
   startCountTime() {
     timer = setInterval(() => {
-        this.updateCount()
+      this.updateCount()
     }, 1000);
   }
 
   render() {
     return (
       <>
-       {
-         this.props.$$hidden ? <></> :
-         <div className={`${styles['count'] + ' ' + this.state.className}`}>{this.state.count}</div>
-       }
+        {
+          this.props.$$hidden ? <></> :
+            <div className={`${styles['count'] + ' ' + this.state.className}`}>{this.state.count}</div>
+        }
       </>
     )
   }
 }
-
-//@ts-ignore
-Renderer({ type: "custom-countdown", autoVar: true })(CustomCountdownRenderer);

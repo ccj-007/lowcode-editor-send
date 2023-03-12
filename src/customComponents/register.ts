@@ -1,19 +1,26 @@
-import { registerEditorPlugin } from "amis-editor";
-
-import CustomTitlePlugin from "./CustomTitle/plugin";
-import "./CustomTitle/renderer";
-import CustomCountdownPlugin from "./CustomCountdown/plugin";
-import "./CustomCountdown/renderer";
-import CustomHeatmapPlugin from "./CustomHeatmap/plugin";
-import "./CustomHeatmap/renderer";
+import { registerEditorPlugin } from "amis-editor"
+import { Renderer } from "amis"
+import CustomTitlePlugin from "./CustomTitle/plugin"
+import CustomTitleRender from "./CustomTitle/renderer"
+import CustomCountdownPlugin from "./CustomCountdown/plugin"
+import CustomCountdownRender from "./CustomCountdown/renderer"
+import CustomHeatmapPlugin from "./CustomHeatmap/plugin"
+import CustomHeatmapRender from "./CustomHeatmap/renderer"
 
 /**
  * 注册组件入口
  */
 const registerCompoments = () => {
-	registerEditorPlugin(CustomTitlePlugin);
-	registerEditorPlugin(CustomCountdownPlugin);
-	registerEditorPlugin(CustomHeatmapPlugin);
-};
+    //@ts-ignore
+    Renderer({ type: "custom-countdown", autoVar: true })(CustomCountdownRender)
+    //@ts-ignore
+    Renderer({ type: "custom-heatmap", autoVar: true })(CustomHeatmapRender)
+    //@ts-ignore
+    Renderer({ type: "custom-title", autoVar: true })(CustomTitleRender)
 
-export default registerCompoments;
+    registerEditorPlugin(CustomTitlePlugin)
+    registerEditorPlugin(CustomCountdownPlugin)
+    registerEditorPlugin(CustomHeatmapPlugin)
+}
+
+export default registerCompoments
