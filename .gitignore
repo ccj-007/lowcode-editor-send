@@ -6,7 +6,7 @@
 /server/client-admin.json
 .pnp.js
 /comp-sdk
-
+.VSCodeCounter
 # testing
 /coverage
 
