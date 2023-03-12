@@ -5,6 +5,7 @@
 /.pnp
 /server/client-admin.json
 .pnp.js
+/comp-sdk
 
 # testing
 /coverage
