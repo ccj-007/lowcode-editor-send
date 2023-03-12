@@ -1,32 +1,32 @@
-# 背景
+# 📘 背景
 
 你是否在做中后台项目中经常要重复做 crud 的业务逻辑，花费大量时间还时常有 bug 发生，但是现在只要几分钟就能让你快速连通前后端，拖拉拽实现后台业务逻辑。你就问香不香！
 
-# 关于
+# 🧾 关于
 
 🚀 ✈️ 🚁 lowcode-editor-send 基于 amis-editor（React + TS），通过封装 json 数据上报、配置、自定义组件等，实现低代码管理后台实时更新，无需手动写 json 配置。如果你要在 Vue 中使用当然也可以。👍 简单一句话： 你不用敲代码了！！
 
-# 原理
+# 📕 原理
 
 抽空实现了最简单版本的低代码框架，方便你快速理解
 
 Easy-Lowcode https://github.com/ccj-007/easy-lowcode
 
-# 文章
+# 📗 文章
 
 [我的低代码框架是如何生成源码的？](https://juejin.cn/post/7206955531998773309)
 
-# 沟通
+# 🤹‍♂️ 沟通
 
 #### 觉得不错点个 star ⭐ 再走 ！
 
 #### QQ 交流群 565896756
 
-# 预览
+# 👀 预览
 
 ![lowcode-editor-send](http://rreppket2.hn-bkt.clouddn.com/introduce.png)
 
-# 开始
+# 🌵 开始
 
 ```
   npm i           //安装依赖
@@ -35,7 +35,7 @@ Easy-Lowcode https://github.com/ccj-007/easy-lowcode
   npm run build   //打包（某些情况可能会存在内存溢出问题）
 ```
 
-# 功能
+# 🧩 功能
 
 1. url 跳转 √
 2. 历史记录修改 √
@@ -49,7 +49,7 @@ Easy-Lowcode https://github.com/ccj-007/easy-lowcode
     - 倒计时组件 √
     - 热力图组件 √
 
-# 自定义组件
+# 🔨 自定义组件
 
 1. 请在项目 src 文件夹下的 customComponents 组件中根据已有示例配置即可，在 renderer 做 jsx 的渲染工作，plugin 做组件的基础配置
 2. 如何存在不确定的配置，可以在如下类型文件中查找对应 api
@@ -125,7 +125,7 @@ Easy-Lowcode https://github.com/ccj-007/easy-lowcode
 }
 ```
 
-# 自定义组件如何集成 SDK
+# 🔫 自定义组件如何集成 SDK
 
 具体可以看官方用法，这里做了一个打包自定义组件的工作，并在 html 中引入
 
@@ -226,7 +226,7 @@ export default config
 </script>
 ```
 
-# 注意
+# ⚠ 注意
 
 1. 本地调试请在 server 文件夹下定义好文件名，本地调用通过文件名对应路由名。如果需要数据库连接，请定义好项目名和路由名等字段用于查询。json 配置在原来基础上，已经做了一个包裹, 核心数据配置在 json 属性内，为了方便定位以及后期维护扩展。
 
@@ -245,7 +245,7 @@ export default config
 }
 ```
 
-# 核心
+# 🍬 核心
 
 ```js
 //src/App.tsx
@@ -431,7 +431,7 @@ proxy({
 })
 ```
 
-# 后端服务
+# 🏡 后端服务
 
 ```js
 //server/app.js  用于调试服务端
@@ -526,7 +526,7 @@ http.createServer(function (req, res) {
 }).listen(3001) // 监听的端口
 ```
 
-## 如何在 Vue 的前端项目中使用 ？
+## 🥦 如何在 Vue 的前端项目中使用 ？
 
 ### 1. 在静态目录 public 中的 index.html 引入对应的 sdk，sdk 官网有可以自行下载
 
@@ -713,7 +713,7 @@ export default {
 </script>
 ```
 
-# 总结
+# 😃 总结
 
 ### 实现以上基本能快速将中后台系统集成进低代码页面, 甚至单独搭建一个低代码管理后台。 可谓是 crud 的解决办法的神器。
 
