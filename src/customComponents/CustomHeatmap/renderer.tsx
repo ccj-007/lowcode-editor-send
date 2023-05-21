@@ -1,7 +1,7 @@
 import * as React from "react";
-import { normalizeApi } from "amis-core";
-import { RendererProps } from "amis";
+import { normalizeApi, RendererProps } from "amis-core";
 import Heatmap from 'heatmap.js'
+import { JsonSchema } from "amis/lib/renderers/Json";
 
 export interface MyRendererProps extends RendererProps { }
 interface HeatMapState {
@@ -38,6 +38,12 @@ export default class CustomHeatmapRenderer extends React.Component<
     }
     this.getInstance()
   }
+  setPreview(payload: boolean) {
+    this.setState({ preview: payload })
+  }
+  setJSON(payload: JsonSchema) {
+    this.setState({ json: payload })
+  }
 
   getCustomApi(val?: any) {
     const { env, api, sentence } = this.props;
@@ -57,12 +63,12 @@ export default class CustomHeatmapRenderer extends React.Component<
     this.setState({
       heatmapInstance
     }, () => {
+      this.renderHeatMap()
     })
   }
   renderHeatMap() {
     let json = { radius: 4 }
     if (this.state.json) {
-      // eslint-disable-next-line
       eval('json =' + this.state.json)
     }
     let r = json && json.radius ? json.radius : 70
@@ -81,7 +87,6 @@ export default class CustomHeatmapRenderer extends React.Component<
         x: Math.floor(Math.random() * width),
         y: Math.floor(Math.random() * height),
         value: value,
-        //@ts-ignore
         radius: radius
       };
       points.push(point);
@@ -92,25 +97,6 @@ export default class CustomHeatmapRenderer extends React.Component<
     };
     //@ts-ignore
     this.state.heatmapInstance.setData(data);
-  }
-
-  shouldComponentUpdate(nextProps: any, nextState: any) {
-    if ((preCompInfo) !== (nextProps)) {
-      preCompInfo = nextProps
-      this.setState({
-        compInfo: nextProps,
-        json: nextProps.json_heatmap || null,
-        preview: !!nextProps.preview || true,
-        className: nextProps.className || '',
-      }, () => {
-        this.renderHeatMap()
-      })
-      return true
-    }
-    if ((this.state) !== (nextState)) {
-      return true
-    }
-    return false
   }
   render() {
     return (

@@ -1,7 +1,6 @@
 import * as React from "react";
-import { RendererProps } from "amis";
 import styles from './index.module.css'
-import { normalizeApi } from "amis-core";
+import { normalizeApi, RendererProps } from "amis-core";
 
 export interface MyRendererProps extends RendererProps { }
 interface CountDownState {
@@ -14,10 +13,8 @@ interface CountDownState {
   minimum: number
   maximum: number
   isDel: boolean
+  timer: NodeJS.Timer | null
 }
-
-let timer: null | NodeJS.Timeout = null;
-let preCompInfo: null = null
 
 export default class CustomCountdownRenderer extends React.Component<
   MyRendererProps,
@@ -26,6 +23,7 @@ export default class CustomCountdownRenderer extends React.Component<
   constructor(props: MyRendererProps) {
     super(props);
     this.state = {
+      timer: null,
       compInfo: null,
       count: 60,
       isLoop: false,
@@ -44,6 +42,24 @@ export default class CustomCountdownRenderer extends React.Component<
       this.getCustomApi();
     }
   }
+  setCount(payload: number) {
+    this.setState({ count: payload })
+  }
+  setMinimum(payload: number) {
+    this.setState({ minimum: payload })
+  }
+  setMaximum(payload: number) {
+    this.setState({ maximum: payload })
+  }
+  setStep(payload: number) {
+    this.setState({ step: payload })
+  }
+  setLoop(payload: boolean) {
+    this.setState({ isLoop: payload })
+  }
+  setDel(payload: boolean) {
+    this.setState({ isDel: payload })
+  }
 
   getCustomApi(val?: any) {
     const { env, api, sentence } = this.props;
@@ -55,30 +71,8 @@ export default class CustomCountdownRenderer extends React.Component<
       })
   }
 
-  shouldComponentUpdate(nextProps: any, nextState: any) {
-    if ((preCompInfo) !== (nextProps)) {
-      preCompInfo = nextProps
-      this.setState({
-        compInfo: nextProps,
-        count: nextProps.count || 60,
-        isLoop: !!nextProps.isLoop,
-        minimum: nextProps.minimum || 0,
-        maximum: nextProps.maximum || 100,
-        step: nextProps.step || 1,
-        className: nextProps.className || '',
-        isDel: !!nextProps.isDel,
-      })
-
-      return true
-    }
-    if ((this.state) !== (nextState)) {
-      return true
-    }
-    return false
-  }
-
   updateCount() {
-    const { isLoop, count, step, minimum, maximum, isDel } = this.state
+    const { isLoop, count, step, minimum, maximum, isDel, timer } = this.state
     let newCount
     if (isDel) {
       newCount = count - step;
@@ -106,9 +100,16 @@ export default class CustomCountdownRenderer extends React.Component<
   }
 
   startCountTime() {
-    timer = setInterval(() => {
-      this.updateCount()
-    }, 1000);
+    this.setState({
+      timer: setInterval(() => {
+        this.updateCount()
+      }, 1000)
+    })
+  }
+
+  componentWillUnmount(): void {
+    this.state.timer && clearInterval(this.state.timer);
+    this.setState({ timer: null })
   }
 
   render() {

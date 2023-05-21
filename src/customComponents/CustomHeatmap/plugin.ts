@@ -2,53 +2,53 @@
  * @description 倒计时组件
  */
 
-import { BasePlugin,  getSchemaTpl } from "amis-editor";
+import { ActiveEventContext, BasePlugin, ChangeEventContext, PluginEvent, getSchemaTpl } from "amis-editor";
 
 export default class CustomHeatmapPlugin extends BasePlugin {
-	rendererName = "custom-heatmap";
+  rendererName = "custom-heatmap";
 
-	searchKeywords = "热力图";
+  searchKeywords = "热力图";
 
-	// 暂时只支持这个，配置后会开启代码编辑器
-	$schema = "/schemas/UnkownSchema.json";
+  // 暂时只支持这个，配置后会开启代码编辑器
+  $schema = "/schemas/UnkownSchema.json";
 
-	// 用来配置名称和描述
-	name = "热力图";
-	description = "热力图图表";
+  // 用来配置名称和描述
+  name = "热力图";
+  description = "热力图图表";
 
-	// tag，决定会在哪个 tab 下面显示的
-	tags = ["自定义组件"];
+  // tag，决定会在哪个 tab 下面显示的
+  tags = ["自定义组件"];
 
-	// 图标
-	icon = "fas fa-hotdog";
+  // 图标
+  icon = "fas fa-hotdog";
 
-	// 拖入组件里面时的初始数据
-	scaffold = {
-		type: "custom-heatmap",
+  // 拖入组件里面时的初始数据
+  scaffold = {
+    type: "custom-heatmap",
     json: null,
     preview: true,
-		body: [{ type: "container", body: ["内容区"] }],
-	};
+    body: [{ type: "container", body: ["内容区"] }],
+  };
 
-	// 用来生成预览图的
-	previewSchema = {
-		...this.scaffold,
-	};
+  // 用来生成预览图的
+  previewSchema = {
+    ...this.scaffold,
+  };
 
-	onActive(e: any) {}
+  onActive(e: PluginEvent<ActiveEventContext>) { }
 
-	/**
-	 * 面板修改之前的数据
-	 */
-	beforeUpdate(e: any) {}
-	/**
-	 * 面板修改之后的数据
-	 */
-	afterUpdate(e: any) {}
+  /**
+   * 面板修改之前的数据
+   */
+  beforeUpdate(e: PluginEvent<ChangeEventContext>) { }
+  /**
+   * 面板修改之后的数据
+   */
+  afterUpdate(e: PluginEvent<ChangeEventContext>) { }
 
-	// 右侧面板相关
-	panelTitle = "热力图";
-  
+  // 右侧面板相关
+  panelTitle = "热力图";
+
   panelBodyCreator(context: any) {
     let panelConfig = getSchemaTpl("tabs", [
       {
@@ -74,21 +74,22 @@ export default class CustomHeatmapPlugin extends BasePlugin {
           {
             name: "preview",
             label: "是否预览",
-            type: "checkbox",  
+            type: "checkbox",
+            onChange: (val: boolean) => {
+              const node = this.manager.store.getNodeById(context.id);
+              const component = node?.getComponent() || {};
+              component.setPreview(val)
+            }
           },
           {
             name: "json_heatmap",
             label: "热力图的json配置",
             type: "json-editor",
-            onChange: (e: any) => {
-              const id = context.id;
-              const { manager } = this;
-              const { store } = manager;
-              const node = store.getNodeById(id);
-              console.log(node, e);
-              // const component = node.getComponent();
-              // component.getCustomApi(val);
-            }  
+            onChange: (val: any) => {
+              const node = this.manager.store.getNodeById(context.id);
+              const component = node?.getComponent() || {};
+              component.setJSON(val)
+            }
           },
         ],
       },
@@ -99,12 +100,12 @@ export default class CustomHeatmapPlugin extends BasePlugin {
         getSchemaTpl("combo-container"),
         getSchemaTpl("hidden"),
         getSchemaTpl("switchDefaultValue"),
-      ],
+        ],
       },
     ]
     panelConfig.tabs.unshift(...panelBody)
-		return [
-			panelConfig
-		]
-	}
+    return [
+      panelConfig
+    ]
+  }
 }

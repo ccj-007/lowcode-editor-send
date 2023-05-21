@@ -1,5 +1,5 @@
 import { registerEditorPlugin } from "amis-editor"
-import { Renderer } from "amis"
+import { Renderer } from "amis-core"
 import CustomTitlePlugin from "./CustomTitle/plugin"
 import CustomTitleRender from "./CustomTitle/renderer"
 import CustomCountdownPlugin from "./CustomCountdown/plugin"
