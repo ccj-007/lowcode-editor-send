@@ -2,23 +2,23 @@ import * as React from "react";
 import { Editor } from "amis-editor";
 import "./App.css";
 import axios from "axios";
-import crudTpl from "./tpl/crud.json"; 
+import crudTpl from "./tpl/crud.json";
 import { proxy } from "ajax-hook"; //拦截amis内部ajax请求
-import type { SchemaObject } from "amis/lib/Schema"; 
+import type { JSONSchema } from "amis/lib";
 import registerCompoments from "./customComponents/register";
-import {Select} from 'amis';
-import {currentLocale} from 'i18n-runtime';
-import {observer} from 'mobx-react';
+import { Select } from 'amis-ui';
+import { currentLocale } from 'i18n-runtime';
+import { observer } from 'mobx-react';
 
 const editorLanguages = [
-  {
-    label: '简体中文',
-    value: 'zh-CN'
-  },
-  {
-    label: 'English',
-    value: 'en-US'
-  }
+	{
+		label: '简体中文',
+		value: 'zh-CN'
+	},
+	{
+		label: 'English',
+		value: 'en-US'
+	}
 ];
 const curLanguage = currentLocale()
 
@@ -63,7 +63,7 @@ class App extends React.Component<any, StateType> {
 		};
 	}
 	componentDidMount() {
-    console.info('mobx全局数据', this.props)
+		console.info('mobx全局数据', this.props)
 		//拦截处理
 		proxy({
 			onRequest: (config, handler) => {
@@ -322,7 +322,7 @@ class App extends React.Component<any, StateType> {
 					let head = document.getElementsByTagName("head");
 
 					if (head && head[0] && this.state.linkDOM) {
-            
+
 						head[0].removeChild(this.state.linkDOM);
 					}
 
@@ -333,7 +333,7 @@ class App extends React.Component<any, StateType> {
 	};
 	//crud模板
 	setTpl = () => {
-		let obj = this.changeBaseURLtoDomain(crudTpl) as SchemaObject;
+		let obj = this.changeBaseURLtoDomain(crudTpl) as JSONSchema;
 		this.setState({
 			json: obj,
 		});
@@ -362,13 +362,13 @@ class App extends React.Component<any, StateType> {
 		// let res = str.replace(urlReg, "${baseURL}");
 		// return JSON.parse(res);
 	};
-   changeLocale(value: string) {
-    localStorage.setItem('suda-i18n-locale', value);
-    window.location.reload();
-  }
+	changeLocale(value: string) {
+		localStorage.setItem('suda-i18n-locale', value);
+		window.location.reload();
+	}
 
 	render() {
-    let {isMobile, changeMobile} = this.props.store
+		let { isMobile, changeMobile } = this.props.store
 		return (
 			<>
 				<div className="tabbar">
@@ -416,17 +416,17 @@ class App extends React.Component<any, StateType> {
 						<button className="send-btn" onClick={this.clearJSON}>
 							重置
 						</button>
-            <Select
-              className='margin-left-space'
-              options={editorLanguages}
-              value={curLanguage}
-              clearable={false}
-              onChange={(e: any) => this.changeLocale(e.value)}
-            />
-            <button className="send-btn" onClick={() => {
-              changeMobile(isMobile)
-            }}>
-            {isMobile ? '切换PC' : '切换Mobile'}
+						<Select
+							className='margin-left-space'
+							options={editorLanguages}
+							value={curLanguage}
+							clearable={false}
+							onChange={(e: any) => this.changeLocale(e.value)}
+						/>
+						<button className="send-btn" onClick={() => {
+							changeMobile(isMobile)
+						}}>
+							{isMobile ? '切换PC' : '切换Mobile'}
 						</button>
 						<button className="send-btn" onClick={this.startPreview}>
 							{this.state.preview ? "编辑" : "预览"}
@@ -437,23 +437,21 @@ class App extends React.Component<any, StateType> {
 					</div>
 				</div>
 				<Editor
-          theme={'cxd'}
+					theme={'cxd'}
 					value={this.state.json}
 					onChange={this.handleChange}
 					preview={this.state.preview}
-          onPreview={() => {}}
-          onSave={() => {}}
-          $schemaUrl={`${window.location.protocol}//${window.location.host}/schema.json`}
-          isMobile={this.props.store.isMobile}
-          iframeUrl={'/amis-editor-demo' + '/editor.html'}
-          showCustomRenderersPanel={true}
-          //可以定义全局的状态、如全局组件、请求等
-          // amisEnv={{
-          //   fetcher: store.fetcher,
-          //   notify: store.notify,
-          //   alert: store.alert,
-          //   copy: store.copy
-          // }}
+					onPreview={() => { }}
+					onSave={() => { }}
+					isMobile={this.props.store.isMobile}
+					showCustomRenderersPanel={true}
+				//可以定义全局的状态、如全局组件、请求等
+				// amisEnv={{
+				//   fetcher: store.fetcher,
+				//   notify: store.notify,
+				//   alert: store.alert,
+				//   copy: store.copy
+				// }}
 				/>
 			</>
 		);
