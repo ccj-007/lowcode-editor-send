@@ -2,29 +2,29 @@
 
 你是否在做中后台项目中经常要重复做 crud 的业务逻辑，花费大量时间还时常有 bug 发生，但是现在只要几分钟就能让你快速连通前后端，拖拉拽实现后台业务逻辑。你就问香不香！
 
-# 🧾 关于
+## 关于
 
 🚀 ✈️ 🚁 lowcode-editor-send 基于 amis-editor（React + TS），通过封装 json 数据上报、配置、自定义组件等，实现低代码管理后台实时更新，无需手动写 json 配置。如果你要在 Vue 中使用当然也可以。👍 简单一句话： 你不用敲代码了！！
 
-# 📕 原理
+## 原理
 
-抽空实现了最简单版本的低代码框架，方便你快速理解
+抽空实现了最简单版本的低代码框架，方便你快速理解, 支持生产源码。
 
 Easy-Lowcode https://github.com/ccj-007/easy-lowcode
 
-# 📗 文章
+## 文章
 
 [我的低代码框架是如何生成源码的？](https://juejin.cn/post/7206955531998773309)
+
+## 预览
+
+![lowcode-editor-send](http://rreppket2.hn-bkt.clouddn.com/introduce.png)
 
 # 🤹‍♂️ 沟通
 
 #### 觉得不错点个 star ⭐ 再走 ！
 
 #### QQ 交流群 565896756
-
-# 👀 预览
-
-![lowcode-editor-send](http://rreppket2.hn-bkt.clouddn.com/introduce.png)
 
 # 🌵 开始
 
