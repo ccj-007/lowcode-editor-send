@@ -13,8 +13,6 @@ interface HeatMapState {
   preview: boolean
 }
 
-let preCompInfo: any = null
-
 export default class CustomHeatmapRenderer extends React.Component<
   MyRendererProps,
   HeatMapState
